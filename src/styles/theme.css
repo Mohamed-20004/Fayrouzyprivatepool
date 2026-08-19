@@ -1,0 +1,42 @@
+/*
+ * ─── Design tokens / placeholder branding ───────────────────────────────────
+ * Real branding drops in here later: change these variables (and the logo in
+ * src/components/Logo.tsx + files in /public) — no refactoring needed.
+ */
+:root {
+  /* Brand */
+  --brand-primary: #1f6f54;      /* deep pine green */
+  --brand-primary-dark: #14523d;
+  --brand-accent: #d9a441;       /* warm sand */
+  --brand-surface: #f7f5f0;      /* off-white */
+  --brand-ink: #22302b;
+
+  /* Semantic */
+  --color-bg: var(--brand-surface);
+  --color-card: #ffffff;
+  --color-text: var(--brand-ink);
+  --color-text-muted: #63706a;
+  --color-border: #e2e0d8;
+
+  --color-available: #1f8a5d;
+  --color-available-bg: #e5f5ec;
+  --color-booked: #b3372f;
+  --color-booked-bg: #fbe9e7;
+  --color-blocked: #8a7a4f;
+  --color-blocked-bg: #f3edda;
+  --color-closed: #9aa29e;
+  --color-closed-bg: #eef0ee;
+
+  /* Shape & type */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgb(0 0 0 / 0.08), 0 4px 16px rgb(0 0 0 / 0.06);
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans",
+    "Noto Sans Arabic", "Helvetica Neue", Arial, sans-serif;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 40px;
+}
