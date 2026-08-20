@@ -309,14 +309,20 @@ h3 {
   gap: var(--space-3);
 }
 .hero-scroll {
+  /* Physical offsets: the element's vertical writing-mode re-maps logical
+     inset properties, so inset-inline-end would pin it to the bottom. */
   position: absolute;
-  inset-inline-end: var(--space-4);
+  right: var(--space-4);
   bottom: var(--space-5);
   writing-mode: vertical-rl;
   font-size: 0.65rem;
   letter-spacing: 0.4em;
   text-transform: uppercase;
   color: var(--color-text-faint);
+}
+[dir="rtl"] .hero-scroll {
+  right: auto;
+  left: var(--space-4);
 }
 @media (max-width: 640px) {
   .hero-scroll {

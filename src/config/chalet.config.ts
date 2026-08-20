@@ -99,8 +99,8 @@ export const chaletConfig = {
     showEmbeddedMap: true,
   },
 
-  /** PLACEHOLDER — full-bleed hero image (replace file in /public/gallery). */
-  heroImage: "/gallery/hero.svg",
+  /** Full-bleed hero image (owner-supplied photo in /public/gallery). */
+  heroImage: "/gallery/hero.jpg",
 
   /**
    * PLACEHOLDER — gallery images (replace files in /public/gallery).
