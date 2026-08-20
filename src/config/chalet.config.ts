@@ -7,8 +7,8 @@
  */
 
 export const chaletConfig = {
-  /** PLACEHOLDER — chalet display name (header wordmark, titles, WhatsApp messages). */
-  name: "Cedar Ridge",
+  /** Chalet display name (header wordmark, titles, WhatsApp messages). */
+  name: "Fayrouzy Private Pool",
 
   /** IANA timezone of the chalet. All slot times are local to this zone. */
   timezone: "Asia/Beirut",
@@ -77,10 +77,10 @@ export const chaletConfig = {
 
   /** PLACEHOLDER — contact + social details shown in the footer. */
   contact: {
-    email: "stay@cedarridgechalet.com",
-    instagram: { handle: "@cedarridgechalet", url: "https://instagram.com/cedarridgechalet" },
-    facebook: { handle: "Cedar Ridge Chalet", url: "https://facebook.com/cedarridgechalet" },
-    youtube: { handle: "Cedar Ridge", url: "https://youtube.com/@cedarridgechalet" },
+    email: "stay@fayrouzyprivatepool.com",
+    instagram: { handle: "@fayrouzyprivatepool", url: "https://instagram.com/fayrouzyprivatepool" },
+    facebook: { handle: "Fayrouzy Private Pool", url: "https://facebook.com/fayrouzyprivatepool" },
+    youtube: { handle: "Fayrouzy Private Pool", url: "https://youtube.com/@fayrouzyprivatepool" },
   },
 
   /** PLACEHOLDER — chalet coordinates for the map pin, and location facts. */
