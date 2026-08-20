@@ -1,42 +1,62 @@
 /*
- * ─── Design tokens / placeholder branding ───────────────────────────────────
- * Real branding drops in here later: change these variables (and the logo in
- * src/components/Logo.tsx + files in /public) — no refactoring needed.
+ * ─── Design tokens — "Cedar Ridge" dark luxury theme ────────────────────────
+ * Adapted from the owner's Figma layout: warm near-black ground, antique gold
+ * accent, cream display serif, letter-spaced uppercase labels. Real branding
+ * changes happen here (and in chalet.config.ts) — no refactoring needed.
  */
 :root {
-  /* Brand */
-  --brand-primary: #1f6f54;      /* deep pine green */
-  --brand-primary-dark: #14523d;
-  --brand-accent: #d9a441;       /* warm sand */
-  --brand-surface: #f7f5f0;      /* off-white */
-  --brand-ink: #22302b;
+  /* Brand palette */
+  --brand-gold: #c9a34a;
+  --brand-gold-strong: #dcb75f;
+  --brand-gold-dim: #8a7340;
+  --brand-cream: #f2ede1;
+  --brand-bg: #14110c; /* warm near-black */
+  --brand-panel: #1a1610;
+  --brand-panel-2: #201b13;
 
   /* Semantic */
-  --color-bg: var(--brand-surface);
-  --color-card: #ffffff;
-  --color-text: var(--brand-ink);
-  --color-text-muted: #63706a;
-  --color-border: #e2e0d8;
+  --color-bg: var(--brand-bg);
+  --color-card: var(--brand-panel);
+  --color-card-2: var(--brand-panel-2);
+  --color-text: var(--brand-cream);
+  --color-text-muted: #a2977f;
+  --color-text-faint: #6d654f;
+  --color-border: #322b1d; /* hairline */
+  --color-border-gold: rgba(201, 163, 74, 0.45);
 
-  --color-available: #1f8a5d;
-  --color-available-bg: #e5f5ec;
-  --color-booked: #b3372f;
-  --color-booked-bg: #fbe9e7;
-  --color-blocked: #8a7a4f;
-  --color-blocked-bg: #f3edda;
-  --color-closed: #9aa29e;
-  --color-closed-bg: #eef0ee;
+  /* Calendar slot states (dark variants) */
+  --color-available: var(--brand-gold);
+  --color-available-bg: rgba(201, 163, 74, 0.13);
+  --color-booked: #c08379;
+  --color-booked-bg: rgba(164, 90, 80, 0.16);
+  --color-blocked: #94886a;
+  --color-blocked-bg: rgba(148, 136, 106, 0.13);
+  --color-closed: #4d4636;
+  --color-closed-bg: rgba(255, 255, 255, 0.02);
 
   /* Shape & type */
-  --radius: 12px;
-  --radius-sm: 8px;
-  --shadow: 0 1px 3px rgb(0 0 0 / 0.08), 0 4px 16px rgb(0 0 0 / 0.06);
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans",
-    "Noto Sans Arabic", "Helvetica Neue", Arial, sans-serif;
+  --radius: 2px; /* sharp, luxury-editorial corners */
+  --radius-sm: 2px;
+  --shadow: 0 1px 0 rgba(0, 0, 0, 0.4), 0 18px 50px rgba(0, 0, 0, 0.35);
+  --font-serif: "Playfair Display", "Amiri", Georgia, "Times New Roman", serif;
+  --font-sans: "Poppins", "Noto Sans Arabic", system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --track-caps: 0.32em; /* eyebrow/nav letter-spacing */
+  --track-btn: 0.18em;
 
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 16px;
   --space-4: 24px;
-  --space-5: 40px;
+  --space-5: 48px;
+  --space-6: 96px;
+}
+
+/* Arabic: pair the serif/sans with faces that carry the same contrast. */
+[dir="rtl"] {
+  --font-serif: "Amiri", "Playfair Display", Georgia, serif;
+  --track-caps: 0.14em; /* Arabic reads poorly with extreme tracking */
+  --track-btn: 0.08em;
 }

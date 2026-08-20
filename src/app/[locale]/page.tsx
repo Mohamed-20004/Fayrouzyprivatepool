@@ -2,7 +2,17 @@ import { notFound } from "next/navigation";
 import { chaletConfig } from "@/config/chalet.config";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
-import { Calendar } from "@/components/Calendar";
+import { GallerySection } from "@/components/GallerySection";
+import { BookingSection } from "@/components/BookingSection";
+import {
+  IconBath,
+  IconKitchen,
+  IconMountain,
+  IconPin,
+  IconPool,
+  IconSofa,
+  IconWifi,
+} from "@/components/Icons";
 import { defaultCalendarMonth } from "@/lib/availability";
 import { todayInChaletTz } from "@/lib/dates";
 
@@ -24,64 +34,221 @@ export default async function HomePage({
     chaletConfig.season.endMonth
   ).padStart(2, "0")}`;
 
+  // Hero title: first word cream, the rest gold (per the design).
+  const [firstWord, ...restWords] = chaletConfig.name.split(" ");
+  const restName = restWords.join(" ");
+
+  const fromPrice = Math.min(...Object.values(chaletConfig.prices));
   const { lat, lng } = chaletConfig.location;
   const bbox = `${lng - 0.02},${lat - 0.012},${lng + 0.02},${lat + 0.012}`;
 
+  const amenities = [
+    { icon: <IconPool />, label: dict.amenPool },
+    { icon: <IconMountain />, label: dict.amenViews },
+    { icon: <IconKitchen />, label: dict.amenKitchen },
+    { icon: <IconBath />, label: dict.amenSuites },
+    { icon: <IconSofa />, label: dict.amenLiving },
+    { icon: <IconWifi />, label: dict.amenWifi },
+  ];
+
+  const included = [
+    dict.inc1,
+    dict.inc2,
+    dict.inc3,
+    dict.inc4,
+    dict.inc5,
+    dict.inc6,
+    dict.inc7,
+  ];
+
   return (
     <>
+      {/* ── Hero ── */}
       <div className="hero">
+        <div
+          className="hero-bg"
+          style={{ backgroundImage: `url(${chaletConfig.heroImage})` }}
+        />
         <div className="container">
-          <h1>{chaletConfig.name}</h1>
-          <p>{dict.tagline}</p>
-          <a className="btn" href="#calendar">
-            {dict.bookNow}
-          </a>
+          <div className="hero-inner">
+            <span className="hero-eyebrow">{dict.heroEyebrow}</span>
+            <h1 className="hero-title">
+              {firstWord}
+              {restName && (
+                <>
+                  <br />
+                  <span className="accent">{restName}</span>
+                </>
+              )}
+            </h1>
+            <p className="hero-lead">{dict.tagline}</p>
+            <div className="hero-ctas">
+              <a className="btn" href="#book">
+                {dict.ctaReserve}
+              </a>
+              <a className="btn btn-secondary" href="#gallery">
+                {dict.ctaExplore}
+              </a>
+            </div>
+          </div>
         </div>
+        <span className="hero-scroll">{dict.scrollHint}</span>
       </div>
 
-      <section id="gallery">
-        <div className="container">
-          <h2>{dict.gallery}</h2>
-          <div className="gallery-grid">
-            {chaletConfig.gallery.map((img) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img key={img.src} src={img.src} alt={img.alt} loading="lazy" />
+      {/* ── Amenities strip ── */}
+      <div className="amenities">
+        <div className="container" style={{ padding: 0 }}>
+          <div className="amenities-row">
+            {amenities.map((a) => (
+              <span className="amenity" key={a.label}>
+                {a.icon}
+                {a.label}
+              </span>
             ))}
           </div>
         </div>
+      </div>
+
+      {/* ── Gallery ── */}
+      <section id="gallery">
+        <div className="container">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">{dict.gallery}</span>
+              <h2 className="display">
+                {dict.galleryTitle1}
+                <br />
+                {dict.galleryTitle2}
+              </h2>
+            </div>
+          </div>
+          <GallerySection images={chaletConfig.gallery} labels={dict} />
+        </div>
       </section>
 
-      <section id="calendar">
+      {/* ── Booking ── */}
+      <section id="book">
         <div className="container">
-          <h2>{dict.calendarTitle}</h2>
-          <p style={{ color: "var(--color-text-muted)" }}>{dict.calendarHint}</p>
-          <Calendar
+          <span className="eyebrow">{dict.bookEyebrow}</span>
+          <h2 className="display">
+            {dict.bookTitle1}
+            <br />
+            {dict.bookTitle2}
+          </h2>
+          <p className="price-line">
+            {dict.fromWord}{" "}
+            <strong>
+              {fromPrice} {chaletConfig.currency}
+            </strong>{" "}
+            · {dict.instantConfirmation}
+          </p>
+          <BookingSection
             locale={l}
-            labels={dict}
+            labels={{ ...dict, included }}
             currency={chaletConfig.currency}
             initialMonth={defaultCalendarMonth()}
             minMonth={minMonth}
             maxMonth={maxMonth}
           />
-          <p className="note">{dict.seasonNote}</p>
+          <p className="note" style={{ marginTop: "var(--space-4)" }}>
+            {dict.seasonNote} {dict.calendarHint}
+          </p>
         </div>
       </section>
 
+      {/* ── Location ── */}
       <section id="location">
         <div className="container">
-          <h2>{dict.location}</h2>
-          <iframe
-            className="map-frame"
-            title={dict.location}
-            src={`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lng}`}
-            loading="lazy"
-          />
-          <p>
-            {chaletConfig.location.address} ·{" "}
-            <a href={chaletConfig.location.mapsUrl} target="_blank" rel="noreferrer">
-              {dict.openInMaps}
-            </a>
-          </p>
+          <span className="eyebrow">{dict.locationEyebrow}</span>
+          <h2 className="display">
+            {dict.locationTitle1}
+            <br />
+            {dict.locationTitle2}
+          </h2>
+          <p className="section-lead">{dict.locationLead}</p>
+
+          <dl className="spec-table">
+            <div className="spec-row">
+              <dt>{dict.specAddress}</dt>
+              <dd>{chaletConfig.location.address}</dd>
+            </div>
+            <div className="spec-row">
+              <dt>{dict.specCoordinates}</dt>
+              <dd dir="ltr">{chaletConfig.location.coordinatesLabel}</dd>
+            </div>
+            <div className="spec-row">
+              <dt>{dict.specAltitude}</dt>
+              <dd dir="ltr">{chaletConfig.location.altitude}</dd>
+            </div>
+            <div className="spec-row">
+              <dt>{dict.specDistances}</dt>
+              <dd>{chaletConfig.location.distances}</dd>
+            </div>
+          </dl>
+
+          {chaletConfig.location.showEmbeddedMap && (
+            <iframe
+              className="map-frame"
+              title={dict.location}
+              src={`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lng}`}
+              loading="lazy"
+            />
+          )}
+
+          <a
+            className="btn btn-secondary"
+            href={chaletConfig.location.mapsUrl}
+            target="_blank"
+            rel="noreferrer"
+            style={{ display: "inline-flex", alignItems: "center", gap: 10 }}
+          >
+            <IconPin /> {dict.openInMaps}
+          </a>
+        </div>
+      </section>
+
+      {/* ── Reviews ── */}
+      <section id="reviews">
+        <div className="container">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">{dict.reviewsEyebrow}</span>
+              <h2 className="display" style={{ marginBottom: 0 }}>
+                {dict.reviewsTitle1}
+                <br />
+                {dict.reviewsTitle2}
+              </h2>
+            </div>
+            <div className="rating-line">
+              <span className="stars" aria-hidden="true">
+                ★★★★★
+              </span>
+              <span className="score">{chaletConfig.reviews.average}</span>
+              <span className="count">
+                / {chaletConfig.reviews.count} {dict.staysSuffix}
+              </span>
+            </div>
+          </div>
+
+          <div className="reviews-grid">
+            {chaletConfig.reviews.items.map((r) => (
+              <article className="review-card" key={r.initials}>
+                <div className="review-head">
+                  <span className="review-avatar">{r.initials}</span>
+                  <span>
+                    <span className="review-name">{r.name}</span>
+                    <span className="review-meta" style={{ display: "block" }}>
+                      {r.meta[l]}
+                    </span>
+                  </span>
+                  <span className="stars" aria-label="5/5">
+                    ★★★★★
+                  </span>
+                </div>
+                <blockquote className="review-quote">“{r.quote[l]}”</blockquote>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
     </>

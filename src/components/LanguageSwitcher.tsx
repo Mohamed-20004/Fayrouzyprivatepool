@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { locales, localeNames, type Locale } from "@/i18n/config";
+import { locales, type Locale } from "@/i18n/config";
+
+const shortLabels: Record<Locale, string> = {
+  en: "EN",
+  ar: "عربي",
+  fr: "FR",
+};
 
 /** Visible on every page; swaps the locale prefix of the current path. */
 export function LanguageSwitcher({ current }: { current: Locale }) {
@@ -18,7 +24,7 @@ export function LanguageSwitcher({ current }: { current: Locale }) {
           className={l === current ? "active" : ""}
           lang={l}
         >
-          {localeNames[l]}
+          {shortLabels[l]}
         </Link>
       ))}
     </nav>

@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
-  <rect width="400" height="300" fill="#9ed1c0"/>
-  <circle cx="330" cy="60" r="28" fill="#f5e6b8" opacity="0.9"/>
-  <path d="M0 300 L90 170 L180 300 Z" fill="#1f6f54" opacity="0.8"/>
-  <path d="M120 300 L240 130 L360 300 Z" fill="#1f6f54"/>
-  <rect x="0" y="255" width="400" height="45" fill="#14523d"/>
-  <text x="200" y="285" font-family="sans-serif" font-size="18" fill="#ffffff" text-anchor="middle">Pool (placeholder)</text>
-</svg>

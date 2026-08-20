@@ -3,12 +3,45 @@ import type { Locale } from "@/i18n/config";
 /** All UI strings. WhatsApp message strings live in src/lib/whatsapp/messages.ts. */
 
 const en = {
-  tagline: "Your private escape in the mountains",
+  // Hero
+  heroEyebrow: "The Bekaa Highlands · Lebanon",
+  tagline:
+    "A private mountain retreat above the treeline. Four bedrooms, an infinity pool, and views that redefine what silence sounds like.",
+  ctaReserve: "Reserve your stay",
+  ctaExplore: "Explore the chalet",
+  scrollHint: "Scroll",
+
+  // Nav
+  navGallery: "Gallery",
+  navBook: "Book",
+  navLocation: "Location",
+  navReviews: "Reviews",
+  navContact: "Contact",
+  reserve: "Reserve",
   bookNow: "Book now",
+
+  // Amenities strip
+  amenPool: "Infinity pool",
+  amenViews: "Mountain views",
+  amenKitchen: "Gourmet kitchen",
+  amenSuites: "4 en-suites",
+  amenLiving: "Grand living room",
+  amenWifi: "Fibre internet",
+
+  // Gallery
   gallery: "Gallery",
-  location: "Location",
-  openInMaps: "Open in Google Maps",
-  calendarTitle: "Availability & booking",
+  galleryTitle1: "Every Hour,",
+  galleryTitle2: "a Different Light",
+  tabPool: "Pool",
+  tabInteriors: "Interiors",
+  tabViews: "Views",
+
+  // Booking section
+  bookEyebrow: "Reservations",
+  bookTitle1: "Book Your",
+  bookTitle2: "Stay",
+  fromWord: "From",
+  instantConfirmation: "Instant confirmation",
   calendarHint: "Pick a date, then choose a day or night slot.",
   daySlot: "Day",
   nightSlot: "Night",
@@ -21,7 +54,19 @@ const en = {
   nextMonth: "Next month",
   seasonNote: "The chalet is bookable from May 1 to October 31.",
   loading: "Loading…",
+  summaryTitle: "Booking Summary",
+  selectSlotHint: "→ Select a date and slot on the calendar",
+  proceedPayment: "Proceed to payment",
+  includedTitle: "What's included",
+  inc1: "Exclusive use of the entire chalet",
+  inc2: "Heated infinity pool",
+  inc3: "Fully equipped gourmet kitchen",
+  inc4: "High-speed fibre internet",
+  inc5: "Outdoor barbecue & panoramic terrace",
+  inc6: "Housekeeping before every stay",
+  inc7: "WhatsApp confirmation & support",
 
+  // Booking form page
   bookTitle: "Complete your booking",
   bookDate: "Date",
   bookSlot: "Slot",
@@ -40,22 +85,25 @@ const en = {
   errSlotTaken: "Sorry, this slot was just taken. Please pick another one.",
   errGeneric: "Something went wrong. Please try again.",
 
+  // Confirmation page
   confTitle: "Your booking",
   confPendingTitle: "Payment in progress…",
   confPendingBody:
     "We're waiting for your payment confirmation. This page refreshes automatically.",
-  confConfirmedTitle: "Booking confirmed 🎉",
+  confConfirmedTitle: "Booking confirmed",
   confConfirmedBody:
     "A confirmation was sent to your WhatsApp with all the details.",
   confCancelledTitle: "Booking cancelled",
   confCancelledBody:
     "This booking has been cancelled. Any refund goes back to your original payment method.",
   confFailedTitle: "Payment not completed",
-  confFailedBody: "The payment didn't complete and no booking was made. You can try again.",
+  confFailedBody:
+    "The payment didn't complete and no booking was made. You can try again.",
   confReference: "Reference",
   confAmount: "Amount",
   backToCalendar: "Back to the calendar",
 
+  // Rebook page
   rebookTitle: "Reschedule your booking",
   rebookCurrent: "Current booking",
   rebookPickNew: "Pick a new slot",
@@ -72,19 +120,72 @@ const en = {
   cancelAsk: "Cancel this booking? You'll get a full refund.",
   cancelDone: "Your booking was cancelled and the refund initiated.",
 
+  // Location
+  locationEyebrow: "Location",
+  location: "Location",
+  locationTitle1: "Bekaa Highlands,",
+  locationTitle2: "Lebanon",
+  locationLead:
+    "Perched at 1,800 metres above sea level, the chalet sits at the convergence of ancient cedar forests, alpine meadows, and uninterrupted valley views stretching across the Bekaa.",
+  specAddress: "Address",
+  specCoordinates: "Coordinates",
+  specAltitude: "Altitude",
+  specDistances: "Distances",
+  openInMaps: "Open in Google Maps",
+
+  // Reviews
+  reviewsEyebrow: "Guest Reviews",
+  reviewsTitle1: "What Our",
+  reviewsTitle2: "Guests Say",
+  staysSuffix: "stays",
+
+  // Footer
+  getInTouch: "Get in touch",
+  followAlong: "Follow along",
+  footerBlurb:
+    "A private mountain retreat in the highlands of Lebanon. Available for day and night stays throughout the season.",
+  rightsReserved: "All rights reserved.",
+
   langSwitch: "Language",
-  currencySuffix: "",
 } as const;
 
 export type Dictionary = { [K in keyof typeof en]: string };
 
 const ar: Dictionary = {
-  tagline: "ملاذك الخاص في الجبال",
+  heroEyebrow: "مرتفعات البقاع · لبنان",
+  tagline:
+    "ملاذ جبلي خاص فوق خط الأشجار. أربع غرف نوم، مسبح لامتناهٍ، وإطلالات تعيد تعريف صوت السكينة.",
+  ctaReserve: "احجز إقامتك",
+  ctaExplore: "اكتشف الشاليه",
+  scrollHint: "مرّر",
+
+  navGallery: "المعرض",
+  navBook: "الحجز",
+  navLocation: "الموقع",
+  navReviews: "التقييمات",
+  navContact: "اتصل بنا",
+  reserve: "احجز",
   bookNow: "احجز الآن",
+
+  amenPool: "مسبح لامتناهٍ",
+  amenViews: "إطلالات جبلية",
+  amenKitchen: "مطبخ فاخر",
+  amenSuites: "4 أجنحة",
+  amenLiving: "صالة رحبة",
+  amenWifi: "إنترنت فايبر",
+
   gallery: "معرض الصور",
-  location: "الموقع",
-  openInMaps: "افتح في خرائط غوغل",
-  calendarTitle: "التوفر والحجز",
+  galleryTitle1: "كل ساعة،",
+  galleryTitle2: "ضوء مختلف",
+  tabPool: "المسبح",
+  tabInteriors: "الداخل",
+  tabViews: "الإطلالات",
+
+  bookEyebrow: "الحجوزات",
+  bookTitle1: "احجز",
+  bookTitle2: "إقامتك",
+  fromWord: "ابتداءً من",
+  instantConfirmation: "تأكيد فوري",
   calendarHint: "اختر التاريخ ثم اختر الفترة النهارية أو الليلية.",
   daySlot: "نهاري",
   nightSlot: "ليلي",
@@ -97,6 +198,17 @@ const ar: Dictionary = {
   nextMonth: "الشهر التالي",
   seasonNote: "الشاليه متاح للحجز من 1 أيار (مايو) حتى 31 تشرين الأول (أكتوبر).",
   loading: "جارٍ التحميل…",
+  summaryTitle: "ملخص الحجز",
+  selectSlotHint: "← اختر التاريخ والفترة من التقويم",
+  proceedPayment: "المتابعة إلى الدفع",
+  includedTitle: "ماذا يشمل الحجز",
+  inc1: "الشاليه بكامله حصرياً لك",
+  inc2: "مسبح لامتناهٍ مدفّأ",
+  inc3: "مطبخ فاخر مجهز بالكامل",
+  inc4: "إنترنت فايبر فائق السرعة",
+  inc5: "شواء خارجي وتراس بانورامي",
+  inc6: "تنظيف كامل قبل كل إقامة",
+  inc7: "تأكيد ودعم عبر واتساب",
 
   bookTitle: "أكمل حجزك",
   bookDate: "التاريخ",
@@ -119,7 +231,7 @@ const ar: Dictionary = {
   confTitle: "حجزك",
   confPendingTitle: "الدفع قيد المعالجة…",
   confPendingBody: "بانتظار تأكيد الدفع. تتحدث هذه الصفحة تلقائياً.",
-  confConfirmedTitle: "تم تأكيد الحجز 🎉",
+  confConfirmedTitle: "تم تأكيد الحجز",
   confConfirmedBody: "أُرسل تأكيد إلى واتساب الخاص بك مع كل التفاصيل.",
   confCancelledTitle: "تم إلغاء الحجز",
   confCancelledBody:
@@ -146,17 +258,67 @@ const ar: Dictionary = {
   cancelAsk: "إلغاء هذا الحجز؟ ستستعيد المبلغ كاملاً.",
   cancelDone: "تم إلغاء حجزك وبدأت عملية الاسترداد.",
 
+  locationEyebrow: "الموقع",
+  location: "الموقع",
+  locationTitle1: "مرتفعات البقاع،",
+  locationTitle2: "لبنان",
+  locationLead:
+    "على ارتفاع 1,800 متر فوق سطح البحر، يقع الشاليه عند ملتقى غابات الأرز العريقة والمروج الجبلية وإطلالات ممتدة بلا انقطاع على سهل البقاع.",
+  specAddress: "العنوان",
+  specCoordinates: "الإحداثيات",
+  specAltitude: "الارتفاع",
+  specDistances: "المسافات",
+  openInMaps: "افتح في خرائط غوغل",
+
+  reviewsEyebrow: "تقييمات الضيوف",
+  reviewsTitle1: "ماذا يقول",
+  reviewsTitle2: "ضيوفنا",
+  staysSuffix: "إقامة",
+
+  getInTouch: "تواصل معنا",
+  followAlong: "تابعنا",
+  footerBlurb:
+    "ملاذ جبلي خاص في مرتفعات لبنان. متاح للإقامات النهارية والليلية طوال الموسم.",
+  rightsReserved: "جميع الحقوق محفوظة.",
+
   langSwitch: "اللغة",
-  currencySuffix: "",
 };
 
 const fr: Dictionary = {
-  tagline: "Votre refuge privé dans la montagne",
+  heroEyebrow: "Les hauteurs de la Bekaa · Liban",
+  tagline:
+    "Un refuge de montagne privé au-dessus des arbres. Quatre chambres, une piscine à débordement et des vues qui redéfinissent le son du silence.",
+  ctaReserve: "Réservez votre séjour",
+  ctaExplore: "Découvrir le chalet",
+  scrollHint: "Défiler",
+
+  navGallery: "Galerie",
+  navBook: "Réserver",
+  navLocation: "Localisation",
+  navReviews: "Avis",
+  navContact: "Contact",
+  reserve: "Réserver",
   bookNow: "Réserver",
+
+  amenPool: "Piscine à débordement",
+  amenViews: "Vues montagne",
+  amenKitchen: "Cuisine gastronomique",
+  amenSuites: "4 suites",
+  amenLiving: "Grand salon",
+  amenWifi: "Internet fibre",
+
   gallery: "Galerie",
-  location: "Localisation",
-  openInMaps: "Ouvrir dans Google Maps",
-  calendarTitle: "Disponibilités & réservation",
+  galleryTitle1: "Chaque heure,",
+  galleryTitle2: "une autre lumière",
+  tabPool: "Piscine",
+  tabInteriors: "Intérieurs",
+  tabViews: "Vues",
+
+  bookEyebrow: "Réservations",
+  bookTitle1: "Réservez",
+  bookTitle2: "votre séjour",
+  fromWord: "À partir de",
+  instantConfirmation: "Confirmation instantanée",
   calendarHint: "Choisissez une date, puis un créneau journée ou nuitée.",
   daySlot: "Journée",
   nightSlot: "Nuitée",
@@ -169,6 +331,17 @@ const fr: Dictionary = {
   nextMonth: "Mois suivant",
   seasonNote: "Le chalet est réservable du 1er mai au 31 octobre.",
   loading: "Chargement…",
+  summaryTitle: "Récapitulatif",
+  selectSlotHint: "→ Sélectionnez une date et un créneau sur le calendrier",
+  proceedPayment: "Procéder au paiement",
+  includedTitle: "Ce qui est inclus",
+  inc1: "Le chalet entier, en exclusivité",
+  inc2: "Piscine à débordement chauffée",
+  inc3: "Cuisine gastronomique tout équipée",
+  inc4: "Internet fibre très haut débit",
+  inc5: "Barbecue extérieur & terrasse panoramique",
+  inc6: "Ménage complet avant chaque séjour",
+  inc7: "Confirmation & assistance WhatsApp",
 
   bookTitle: "Finalisez votre réservation",
   bookDate: "Date",
@@ -192,7 +365,7 @@ const fr: Dictionary = {
   confPendingTitle: "Paiement en cours…",
   confPendingBody:
     "Nous attendons la confirmation de votre paiement. Cette page se met à jour automatiquement.",
-  confConfirmedTitle: "Réservation confirmée 🎉",
+  confConfirmedTitle: "Réservation confirmée",
   confConfirmedBody:
     "Une confirmation a été envoyée sur votre WhatsApp avec tous les détails.",
   confCancelledTitle: "Réservation annulée",
@@ -222,8 +395,30 @@ const fr: Dictionary = {
   cancelAsk: "Annuler cette réservation ? Vous serez intégralement remboursé.",
   cancelDone: "Votre réservation a été annulée et le remboursement lancé.",
 
+  locationEyebrow: "Localisation",
+  location: "Localisation",
+  locationTitle1: "Hauteurs de la Bekaa,",
+  locationTitle2: "Liban",
+  locationLead:
+    "Perché à 1 800 mètres d'altitude, le chalet se trouve à la rencontre des forêts de cèdres millénaires, des prairies alpines et de vues ininterrompues sur la vallée de la Bekaa.",
+  specAddress: "Adresse",
+  specCoordinates: "Coordonnées",
+  specAltitude: "Altitude",
+  specDistances: "Distances",
+  openInMaps: "Ouvrir dans Google Maps",
+
+  reviewsEyebrow: "Avis des hôtes",
+  reviewsTitle1: "Ce que disent",
+  reviewsTitle2: "nos hôtes",
+  staysSuffix: "séjours",
+
+  getInTouch: "Nous contacter",
+  followAlong: "Suivez-nous",
+  footerBlurb:
+    "Un refuge de montagne privé dans les hauteurs du Liban. Disponible en journée et en nuitée pendant toute la saison.",
+  rightsReserved: "Tous droits réservés.",
+
   langSwitch: "Langue",
-  currencySuffix: "",
 };
 
 const dictionaries: Record<Locale, Dictionary> = { en, ar, fr };
