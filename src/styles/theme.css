@@ -1,37 +1,38 @@
 /*
- * ─── Design tokens — "Cedar Ridge" dark luxury theme ────────────────────────
- * Adapted from the owner's Figma layout: warm near-black ground, antique gold
- * accent, cream display serif, letter-spaced uppercase labels. Real branding
- * changes happen here (and in chalet.config.ts) — no refactoring needed.
+ * ─── Design tokens — Cedar Ridge brand theme ────────────────────────────────
+ * Owner's palette, in order of importance: TURQUOISE (accents, CTAs, brand),
+ * WHITE (headlines, text), BLACK (ground). Layout keeps the luxury-editorial
+ * structure from the Figma design. Real branding changes happen here (and in
+ * chalet.config.ts) — no refactoring needed.
  */
 :root {
   /* Brand palette */
-  --brand-gold: #c9a34a;
-  --brand-gold-strong: #dcb75f;
-  --brand-gold-dim: #8a7340;
-  --brand-cream: #f2ede1;
-  --brand-bg: #14110c; /* warm near-black */
-  --brand-panel: #1a1610;
-  --brand-panel-2: #201b13;
+  --brand-accent: #3ec8c3; /* turquoise */
+  --brand-accent-strong: #63dcd7;
+  --brand-accent-dim: #2a8a86;
+  --brand-light: #f5f9f8; /* white */
+  --brand-bg: #0c1011; /* cool near-black */
+  --brand-panel: #121718;
+  --brand-panel-2: #161c1d;
 
   /* Semantic */
   --color-bg: var(--brand-bg);
   --color-card: var(--brand-panel);
   --color-card-2: var(--brand-panel-2);
-  --color-text: var(--brand-cream);
-  --color-text-muted: #a2977f;
-  --color-text-faint: #6d654f;
-  --color-border: #322b1d; /* hairline */
-  --color-border-gold: rgba(201, 163, 74, 0.45);
+  --color-text: var(--brand-light);
+  --color-text-muted: #93a5a3;
+  --color-text-faint: #5c6b6a;
+  --color-border: #1f2a2b; /* hairline */
+  --color-border-accent: rgba(62, 200, 195, 0.45);
 
   /* Calendar slot states (dark variants) */
-  --color-available: var(--brand-gold);
-  --color-available-bg: rgba(201, 163, 74, 0.13);
-  --color-booked: #c08379;
-  --color-booked-bg: rgba(164, 90, 80, 0.16);
-  --color-blocked: #94886a;
-  --color-blocked-bg: rgba(148, 136, 106, 0.13);
-  --color-closed: #4d4636;
+  --color-available: var(--brand-accent);
+  --color-available-bg: rgba(62, 200, 195, 0.12);
+  --color-booked: #c07a72;
+  --color-booked-bg: rgba(164, 90, 82, 0.15);
+  --color-blocked: #7a8f8c;
+  --color-blocked-bg: rgba(122, 143, 140, 0.12);
+  --color-closed: #3d4a4a;
   --color-closed-bg: rgba(255, 255, 255, 0.02);
 
   /* Shape & type */
