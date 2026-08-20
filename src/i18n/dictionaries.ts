@@ -4,9 +4,9 @@ import type { Locale } from "@/i18n/config";
 
 const en = {
   // Hero
-  heroEyebrow: "The Bekaa Highlands · Lebanon",
+  heroEyebrow: "Nabatieh · South Lebanon",
   tagline:
-    "A private mountain retreat above the treeline. Four bedrooms, an infinity pool, and views that redefine what silence sounds like.",
+    "A private retreat in the hills of South Lebanon. A master bedroom with two beds, a pool all to yourselves, and evenings that redefine what relaxation feels like.",
   ctaReserve: "Reserve your stay",
   ctaExplore: "Explore the chalet",
   scrollHint: "Scroll",
@@ -21,12 +21,12 @@ const en = {
   bookNow: "Book now",
 
   // Amenities strip
-  amenPool: "Infinity pool",
-  amenViews: "Mountain views",
-  amenKitchen: "Gourmet kitchen",
-  amenSuites: "4 en-suites",
-  amenLiving: "Grand living room",
-  amenWifi: "Fibre internet",
+  amenPool: "Private pool",
+  amenViews: "Garden & terrace",
+  amenKitchen: "Equipped kitchen",
+  amenSuites: "Master bedroom · 2 beds",
+  amenLiving: "Living room",
+  amenWifi: "Wi-Fi",
 
   // Gallery
   gallery: "Gallery",
@@ -59,11 +59,11 @@ const en = {
   proceedPayment: "Proceed to payment",
   includedTitle: "What's included",
   inc1: "Exclusive use of the entire chalet",
-  inc2: "Heated infinity pool",
-  inc3: "Fully equipped gourmet kitchen",
-  inc4: "High-speed fibre internet",
-  inc5: "Outdoor barbecue & panoramic terrace",
-  inc6: "Housekeeping before every stay",
+  inc2: "Master bedroom with two beds",
+  inc3: "Private pool",
+  inc4: "Fully equipped kitchen",
+  inc5: "Outdoor barbecue & terrace",
+  inc6: "Wi-Fi",
   inc7: "WhatsApp confirmation & support",
 
   // Booking form page
@@ -123,10 +123,10 @@ const en = {
   // Location
   locationEyebrow: "Location",
   location: "Location",
-  locationTitle1: "Bekaa Highlands,",
-  locationTitle2: "Lebanon",
+  locationTitle1: "Nabatieh,",
+  locationTitle2: "South Lebanon",
   locationLead:
-    "Perched at 1,800 metres above sea level, the chalet sits at the convergence of ancient cedar forests, alpine meadows, and uninterrupted valley views stretching across the Bekaa.",
+    "Set in the Nabatieh region of South Lebanon, the chalet pairs quiet hills and open skies with an easy drive from the coast — a private pool and garden entirely to yourselves.",
   specAddress: "Address",
   specCoordinates: "Coordinates",
   specAltitude: "Altitude",
@@ -143,7 +143,7 @@ const en = {
   getInTouch: "Get in touch",
   followAlong: "Follow along",
   footerBlurb:
-    "A private mountain retreat in the highlands of Lebanon. Available for day and night stays throughout the season.",
+    "A private pool chalet in the Nabatieh region of South Lebanon. Available for day and night stays throughout the season.",
   rightsReserved: "All rights reserved.",
 
   langSwitch: "Language",
@@ -152,9 +152,9 @@ const en = {
 export type Dictionary = { [K in keyof typeof en]: string };
 
 const ar: Dictionary = {
-  heroEyebrow: "مرتفعات البقاع · لبنان",
+  heroEyebrow: "النبطية · جنوب لبنان",
   tagline:
-    "ملاذ جبلي خاص فوق خط الأشجار. أربع غرف نوم، مسبح لامتناهٍ، وإطلالات تعيد تعريف صوت السكينة.",
+    "ملاذ خاص في تلال الجنوب اللبناني. غرفة نوم رئيسية بسريرين، مسبح لكم وحدكم، وأمسيات تعيد تعريف معنى الاسترخاء.",
   ctaReserve: "احجز إقامتك",
   ctaExplore: "اكتشف الشاليه",
   scrollHint: "مرّر",
@@ -167,12 +167,12 @@ const ar: Dictionary = {
   reserve: "احجز",
   bookNow: "احجز الآن",
 
-  amenPool: "مسبح لامتناهٍ",
-  amenViews: "إطلالات جبلية",
-  amenKitchen: "مطبخ فاخر",
-  amenSuites: "4 أجنحة",
-  amenLiving: "صالة رحبة",
-  amenWifi: "إنترنت فايبر",
+  amenPool: "مسبح خاص",
+  amenViews: "حديقة وتراس",
+  amenKitchen: "مطبخ مجهز",
+  amenSuites: "غرفة رئيسية بسريرين",
+  amenLiving: "صالة جلوس",
+  amenWifi: "واي فاي",
 
   gallery: "معرض الصور",
   galleryTitle1: "كل ساعة،",
@@ -203,11 +203,11 @@ const ar: Dictionary = {
   proceedPayment: "المتابعة إلى الدفع",
   includedTitle: "ماذا يشمل الحجز",
   inc1: "الشاليه بكامله حصرياً لك",
-  inc2: "مسبح لامتناهٍ مدفّأ",
-  inc3: "مطبخ فاخر مجهز بالكامل",
-  inc4: "إنترنت فايبر فائق السرعة",
-  inc5: "شواء خارجي وتراس بانورامي",
-  inc6: "تنظيف كامل قبل كل إقامة",
+  inc2: "غرفة نوم رئيسية بسريرين",
+  inc3: "مسبح خاص",
+  inc4: "مطبخ مجهز بالكامل",
+  inc5: "شواء خارجي وتراس",
+  inc6: "واي فاي",
   inc7: "تأكيد ودعم عبر واتساب",
 
   bookTitle: "أكمل حجزك",
@@ -260,10 +260,10 @@ const ar: Dictionary = {
 
   locationEyebrow: "الموقع",
   location: "الموقع",
-  locationTitle1: "مرتفعات البقاع،",
-  locationTitle2: "لبنان",
+  locationTitle1: "النبطية،",
+  locationTitle2: "جنوب لبنان",
   locationLead:
-    "على ارتفاع 1,800 متر فوق سطح البحر، يقع الشاليه عند ملتقى غابات الأرز العريقة والمروج الجبلية وإطلالات ممتدة بلا انقطاع على سهل البقاع.",
+    "في منطقة النبطية في الجنوب اللبناني، يجمع الشاليه بين هدوء التلال وسماء مفتوحة وقرب سهل من الساحل — مسبح وحديقة لكم وحدكم.",
   specAddress: "العنوان",
   specCoordinates: "الإحداثيات",
   specAltitude: "الارتفاع",
@@ -278,16 +278,16 @@ const ar: Dictionary = {
   getInTouch: "تواصل معنا",
   followAlong: "تابعنا",
   footerBlurb:
-    "ملاذ جبلي خاص في مرتفعات لبنان. متاح للإقامات النهارية والليلية طوال الموسم.",
+    "شاليه بمسبح خاص في منطقة النبطية في الجنوب اللبناني. متاح للإقامات النهارية والليلية طوال الموسم.",
   rightsReserved: "جميع الحقوق محفوظة.",
 
   langSwitch: "اللغة",
 };
 
 const fr: Dictionary = {
-  heroEyebrow: "Les hauteurs de la Bekaa · Liban",
+  heroEyebrow: "Nabatieh · Sud du Liban",
   tagline:
-    "Un refuge de montagne privé au-dessus des arbres. Quatre chambres, une piscine à débordement et des vues qui redéfinissent le son du silence.",
+    "Un refuge privé dans les collines du Sud-Liban. Une chambre principale avec deux lits, une piscine rien que pour vous, et des soirées qui redéfinissent la détente.",
   ctaReserve: "Réservez votre séjour",
   ctaExplore: "Découvrir le chalet",
   scrollHint: "Défiler",
@@ -300,12 +300,12 @@ const fr: Dictionary = {
   reserve: "Réserver",
   bookNow: "Réserver",
 
-  amenPool: "Piscine à débordement",
-  amenViews: "Vues montagne",
-  amenKitchen: "Cuisine gastronomique",
-  amenSuites: "4 suites",
-  amenLiving: "Grand salon",
-  amenWifi: "Internet fibre",
+  amenPool: "Piscine privée",
+  amenViews: "Jardin & terrasse",
+  amenKitchen: "Cuisine équipée",
+  amenSuites: "Chambre principale · 2 lits",
+  amenLiving: "Salon",
+  amenWifi: "Wi-Fi",
 
   gallery: "Galerie",
   galleryTitle1: "Chaque heure,",
@@ -336,11 +336,11 @@ const fr: Dictionary = {
   proceedPayment: "Procéder au paiement",
   includedTitle: "Ce qui est inclus",
   inc1: "Le chalet entier, en exclusivité",
-  inc2: "Piscine à débordement chauffée",
-  inc3: "Cuisine gastronomique tout équipée",
-  inc4: "Internet fibre très haut débit",
-  inc5: "Barbecue extérieur & terrasse panoramique",
-  inc6: "Ménage complet avant chaque séjour",
+  inc2: "Chambre principale avec deux lits",
+  inc3: "Piscine privée",
+  inc4: "Cuisine entièrement équipée",
+  inc5: "Barbecue extérieur & terrasse",
+  inc6: "Wi-Fi",
   inc7: "Confirmation & assistance WhatsApp",
 
   bookTitle: "Finalisez votre réservation",
@@ -397,10 +397,10 @@ const fr: Dictionary = {
 
   locationEyebrow: "Localisation",
   location: "Localisation",
-  locationTitle1: "Hauteurs de la Bekaa,",
-  locationTitle2: "Liban",
+  locationTitle1: "Nabatieh,",
+  locationTitle2: "Sud du Liban",
   locationLead:
-    "Perché à 1 800 mètres d'altitude, le chalet se trouve à la rencontre des forêts de cèdres millénaires, des prairies alpines et de vues ininterrompues sur la vallée de la Bekaa.",
+    "Situé dans la région de Nabatieh au Sud-Liban, le chalet allie collines paisibles, ciel ouvert et accès facile depuis la côte — une piscine et un jardin rien que pour vous.",
   specAddress: "Adresse",
   specCoordinates: "Coordonnées",
   specAltitude: "Altitude",
@@ -415,7 +415,7 @@ const fr: Dictionary = {
   getInTouch: "Nous contacter",
   followAlong: "Suivez-nous",
   footerBlurb:
-    "Un refuge de montagne privé dans les hauteurs du Liban. Disponible en journée et en nuitée pendant toute la saison.",
+    "Un chalet avec piscine privée dans la région de Nabatieh, au Sud-Liban. Disponible en journée et en nuitée pendant toute la saison.",
   rightsReserved: "Tous droits réservés.",
 
   langSwitch: "Langue",

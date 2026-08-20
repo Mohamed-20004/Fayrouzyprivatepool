@@ -36,6 +36,20 @@ export const IconKitchen = ({ size = 20 }: IconProps) => (
   </svg>
 );
 
+export const IconBed = ({ size = 20 }: IconProps) => (
+  <svg {...base(size)}>
+    <path d="M3 18v-8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8M3 15h18M3 18v1M21 18v1" />
+    <path d="M6.5 8V6.5A1.5 1.5 0 0 1 8 5h3v3M13 8V5h3a1.5 1.5 0 0 1 1.5 1.5V8" />
+  </svg>
+);
+
+export const IconLeaf = ({ size = 20 }: IconProps) => (
+  <svg {...base(size)}>
+    <path d="M5 19c0-8 4-13 14-14-.5 10-5 14-11 14-1 0-2-.3-3 0z" />
+    <path d="M5 19c3-5 6-8 10-10" />
+  </svg>
+);
+
 export const IconBath = ({ size = 20 }: IconProps) => (
   <svg {...base(size)}>
     <path d="M4 12h16v2a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-2zM7 19l-1 2M17 19l1 2" />

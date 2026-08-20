@@ -83,18 +83,22 @@ export const chaletConfig = {
     youtube: { handle: "Fayrouzy Private Pool", url: "https://youtube.com/@fayrouzyprivatepool" },
   },
 
-  /** PLACEHOLDER — chalet coordinates for the map pin, and location facts. */
+  /**
+   * Chalet location: Nabatieh region, South Lebanon.
+   * PLACEHOLDER coordinates/distances — centre of Nabatieh until the owner
+   * supplies the exact pin and address. Empty altitude hides that table row.
+   */
   location: {
-    lat: 34.1234,
-    lng: 36.0123,
-    address: "Tannourine el-Fawqa, Bekaa Valley, Lebanon",
+    lat: 33.3772,
+    lng: 35.4836,
+    address: "Nabatieh District, South Lebanon",
     /** Short caps line used in the footer. */
-    shortAddress: "Tannourine · Bekaa Valley · Lebanon",
-    coordinatesLabel: "34.1234° N, 36.0123° E",
-    altitude: "1,800 m",
-    distances: "Baalbek 45 min · Byblos 70 min · Beirut 90 min",
+    shortAddress: "Nabatieh · South Lebanon",
+    coordinatesLabel: "33.3772° N, 35.4836° E",
+    altitude: "",
+    distances: "Saida 35 min · Sour 45 min · Beirut 90 min",
     /** Link sent in WhatsApp confirmations and used by "Open in Google Maps". */
-    mapsUrl: "https://maps.google.com/?q=34.1234,36.0123",
+    mapsUrl: "https://maps.google.com/?q=33.3772,35.4836",
     /** Set false to hide the embedded map and show only the facts table. */
     showEmbeddedMap: true,
   },

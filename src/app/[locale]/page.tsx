@@ -5,9 +5,9 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { GallerySection } from "@/components/GallerySection";
 import { BookingSection } from "@/components/BookingSection";
 import {
-  IconBath,
+  IconBed,
   IconKitchen,
-  IconMountain,
+  IconLeaf,
   IconPin,
   IconPool,
   IconSofa,
@@ -44,9 +44,9 @@ export default async function HomePage({
 
   const amenities = [
     { icon: <IconPool />, label: dict.amenPool },
-    { icon: <IconMountain />, label: dict.amenViews },
+    { icon: <IconLeaf />, label: dict.amenViews },
     { icon: <IconKitchen />, label: dict.amenKitchen },
-    { icon: <IconBath />, label: dict.amenSuites },
+    { icon: <IconBed />, label: dict.amenSuites },
     { icon: <IconSofa />, label: dict.amenLiving },
     { icon: <IconWifi />, label: dict.amenWifi },
   ];
@@ -176,10 +176,12 @@ export default async function HomePage({
               <dt>{dict.specCoordinates}</dt>
               <dd dir="ltr">{chaletConfig.location.coordinatesLabel}</dd>
             </div>
-            <div className="spec-row">
-              <dt>{dict.specAltitude}</dt>
-              <dd dir="ltr">{chaletConfig.location.altitude}</dd>
-            </div>
+            {chaletConfig.location.altitude && (
+              <div className="spec-row">
+                <dt>{dict.specAltitude}</dt>
+                <dd dir="ltr">{chaletConfig.location.altitude}</dd>
+              </div>
+            )}
             <div className="spec-row">
               <dt>{dict.specDistances}</dt>
               <dd>{chaletConfig.location.distances}</dd>
