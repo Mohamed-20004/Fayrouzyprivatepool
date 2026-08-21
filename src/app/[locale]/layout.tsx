@@ -5,7 +5,7 @@ import "@/styles/globals.css";
 import { chaletConfig } from "@/config/chalet.config";
 import { dirFor, isLocale, locales, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { SiteHeader } from "@/components/SiteHeader";
 import {
   IconClock,
   IconFacebook,
@@ -51,26 +51,18 @@ export default async function LocaleLayout({
   return (
     <html lang={l} dir={dirFor(l)}>
       <body>
-        <header className="site-header">
-          <div className="container">
-            <Link href={`/${l}`} className="brand">
-              {chaletConfig.name}
-            </Link>
-            <nav className="main-nav">
-              <Link href={`/${l}#gallery`}>{dict.navGallery}</Link>
-              <Link href={`/${l}#book`}>{dict.navBook}</Link>
-              <Link href={`/${l}#location`}>{dict.navLocation}</Link>
-              <Link href={`/${l}#reviews`}>{dict.navReviews}</Link>
-              <Link href={`/${l}#contact`}>{dict.navContact}</Link>
-            </nav>
-            <div className="header-actions">
-              <LanguageSwitcher current={l} />
-              <Link href={`/${l}#book`} className="btn-reserve">
-                {dict.reserve}
-              </Link>
-            </div>
-          </div>
-        </header>
+        <SiteHeader
+          locale={l}
+          name={chaletConfig.name}
+          labels={{
+            navGallery: dict.navGallery,
+            navBook: dict.navBook,
+            navLocation: dict.navLocation,
+            navReviews: dict.navReviews,
+            navContact: dict.navContact,
+            reserve: dict.reserve,
+          }}
+        />
 
         <main>{children}</main>
 
