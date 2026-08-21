@@ -397,10 +397,16 @@ section {
 }
 .compare img {
   width: 100%;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 16 / 9;
+  /* Keep the photo within one screen. */
+  max-height: min(520px, 62vh);
   object-fit: cover;
   display: block;
   pointer-events: none;
+}
+.compare.plain {
+  cursor: default;
+  touch-action: auto;
 }
 .compare-top {
   position: absolute;

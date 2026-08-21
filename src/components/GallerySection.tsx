@@ -4,12 +4,15 @@ import { useRef, useState } from "react";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { IconMoon, IconSun } from "@/components/Icons";
 
-type GalleryPair = {
+type GalleryEntry = {
   category: "pool" | "interiors" | "views";
   alt: string;
   day: string;
-  night: string;
+  /** Absent = plain photo without the day/night comparison. */
+  night?: string;
 };
+
+type GalleryPair = GalleryEntry & { night: string };
 
 type Labels = Pick<
   Dictionary,
@@ -94,12 +97,12 @@ function DayNightCompare({
   );
 }
 
-/** Gallery: category tabs, each showing day↔night comparison photos. */
+/** Gallery: category tabs; entries with a night shot get the on-image wipe. */
 export function GallerySection({
   pairs,
   labels,
 }: {
-  pairs: readonly GalleryPair[];
+  pairs: readonly GalleryEntry[];
   labels: Labels;
 }) {
   const [category, setCategory] = useState<"pool" | "interiors" | "views">("pool");
@@ -111,6 +114,7 @@ export function GallerySection({
   ];
 
   const shown = pairs.filter((p) => p.category === category);
+  const hasComparison = shown.some((p) => p.night);
 
   return (
     <>
@@ -127,12 +131,25 @@ export function GallerySection({
         ))}
       </div>
 
-      <p className="compare-hint">{labels.galleryDragHint}</p>
+      <p className="compare-hint" style={hasComparison ? undefined : { visibility: "hidden" }}>
+        {labels.galleryDragHint}
+      </p>
 
       <div className={`gallery-grid${shown.length === 1 ? " single" : ""}`}>
-        {shown.map((pair) => (
-          <DayNightCompare key={pair.day} pair={pair} labels={labels} />
-        ))}
+        {shown.map((entry) =>
+          entry.night ? (
+            <DayNightCompare
+              key={entry.day}
+              pair={entry as GalleryPair}
+              labels={labels}
+            />
+          ) : (
+            <figure key={entry.day} className="compare plain" style={{ margin: 0 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={entry.day} alt={entry.alt} draggable={false} />
+            </figure>
+          )
+        )}
       </div>
     </>
   );

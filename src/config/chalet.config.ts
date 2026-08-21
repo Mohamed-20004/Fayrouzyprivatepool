@@ -107,10 +107,12 @@ export const chaletConfig = {
   heroImage: "/gallery/hero.jpg",
 
   /**
-   * PLACEHOLDER — gallery image pairs (replace files in /public/gallery).
-   * Each entry is the SAME angle shot by day and by night; the gallery shows
-   * them as one photo with a draggable divider that wipes between the two.
-   * `category` drives the gallery tabs.
+   * PLACEHOLDER — gallery images (replace files in /public/gallery).
+   * `category` drives the gallery tabs. When an entry has BOTH `day` and
+   * `night` (the same angle shot at both times), it renders as one photo
+   * with a draggable divider that wipes between the two. Leave `night` out
+   * for a plain photo — e.g. interiors, which look the same regardless of
+   * the time of day.
    */
   gallery: [
     {
@@ -121,9 +123,8 @@ export const chaletConfig = {
     },
     {
       category: "interiors",
-      alt: "The living space, day and night",
+      alt: "The master bedroom",
       day: "/gallery/interior-day.svg",
-      night: "/gallery/interior-night.svg",
     },
     {
       category: "views",
@@ -135,7 +136,7 @@ export const chaletConfig = {
     category: "pool" | "interiors" | "views";
     alt: string;
     day: string;
-    night: string;
+    night?: string;
   }>,
 
   /**
