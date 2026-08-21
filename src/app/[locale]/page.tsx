@@ -122,7 +122,7 @@ export default async function HomePage({
               </h2>
             </div>
           </div>
-          <GallerySection images={chaletConfig.gallery} labels={dict} />
+          <GallerySection pairs={chaletConfig.gallery} labels={dict} />
         </div>
       </section>
 

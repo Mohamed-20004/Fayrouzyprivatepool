@@ -381,81 +381,85 @@ section {
 }
 
 /* ─── Gallery ────────────────────────────────────────────────────────────── */
-/* Day ↔ night slider: drag the arrow knob from one end to the other. */
-.dn-slider {
+/* Day ↔ night comparison on the photo itself: two same-angle shots
+   stacked; dragging the arrow handle wipes between them. */
+.compare {
   position: relative;
-  display: flex;
-  align-items: center;
-  width: min(320px, 100%);
-  height: 52px;
-  /* Keep the end labels clear of the knob's travel zone. */
-  padding-inline: 46px;
-  border: 1px solid var(--color-border-accent);
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    rgba(62, 200, 195, 0.12) 0%,
-    rgba(255, 255, 255, 0.02) 50%,
-    rgba(16, 24, 46, 0.55) 100%
-  );
-  cursor: pointer;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  cursor: ew-resize;
   user-select: none;
   touch-action: none;
 }
-[dir="rtl"] .dn-slider {
-  background: linear-gradient(
-    -90deg,
-    rgba(62, 200, 195, 0.12) 0%,
-    rgba(255, 255, 255, 0.02) 50%,
-    rgba(16, 24, 46, 0.55) 100%
-  );
-}
-.dn-slider:focus-visible {
+.compare:focus-visible {
   outline: 2px solid var(--brand-accent);
   outline-offset: 3px;
 }
-.dn-end {
-  flex: 1;
+.compare img {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+.compare-top {
+  position: absolute;
+  inset: 0;
+}
+.compare-divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--brand-accent);
+  transform: translateX(-1px);
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-text-faint);
-  transition: color 0.2s;
-  pointer-events: none;
-  z-index: 1;
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.55);
 }
-.dn-end.active {
-  color: var(--brand-accent);
-}
-.dn-thumb {
+.compare-knob {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 42px;
-  height: 42px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   background: var(--brand-accent);
   color: #0b1010;
-  display: grid;
-  place-items: center;
-  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 1.15rem;
   font-weight: 500;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
-  transition: inset-inline-start 0.25s ease;
-  z-index: 2;
+  line-height: 1;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
 }
-.dn-slider.dragging .dn-thumb {
-  transition: none;
+.compare .gallery-badge {
+  transition: opacity 0.2s;
+  pointer-events: none;
 }
-/* The arrow glyph is directional — mirror it in RTL. */
-[dir="rtl"] .dn-arrow {
-  display: inline-block;
-  transform: scaleX(-1);
+/* Beats the base .gallery-badge inset rule regardless of source order. */
+.compare .compare-label-day {
+  inset-inline-end: auto;
+  inset-inline-start: auto;
+  left: var(--space-3);
+  right: auto;
+}
+.compare .compare-label-night {
+  inset-inline-end: auto;
+  inset-inline-start: auto;
+  right: var(--space-3);
+  left: auto;
+}
+.compare-hint {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-4);
+}
+.gallery-grid.single {
+  grid-template-columns: 1fr;
 }
 
 .tab-row {

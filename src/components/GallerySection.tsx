@@ -4,109 +4,104 @@ import { useRef, useState } from "react";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { IconMoon, IconSun } from "@/components/Icons";
 
-type GalleryImage = {
-  src: string;
-  alt: string;
+type GalleryPair = {
   category: "pool" | "interiors" | "views";
-  time: "day" | "night";
+  alt: string;
+  day: string;
+  night: string;
 };
 
 type Labels = Pick<
   Dictionary,
-  "daySlot" | "nightSlot" | "tabPool" | "tabInteriors" | "tabViews"
+  "daySlot" | "nightSlot" | "tabPool" | "tabInteriors" | "tabViews" | "galleryDragHint"
 >;
 
 /**
- * Day ↔ Night slider: a track with an arrow knob the guest drags (or taps
- * the other side / uses arrow keys) to move between day and night. Positions
- * use logical (inline) coordinates so the whole control mirrors in RTL.
+ * Before/after comparison on the photo itself: the day and night shots of the
+ * same angle are stacked, and an arrow handle dragged across the image wipes
+ * between them. Positions are physical (left→right) — photo content isn't
+ * language-directional — with day anchored on the left.
  */
-function DayNightSlider({
-  time,
-  onChange,
+function DayNightCompare({
+  pair,
   labels,
 }: {
-  time: "day" | "night";
-  onChange: (t: "day" | "night") => void;
+  pair: GalleryPair;
   labels: Pick<Labels, "daySlot" | "nightSlot">;
 }) {
-  const trackRef = useRef<HTMLDivElement>(null);
-  const [dragRatio, setDragRatio] = useState<number | null>(null);
-  const dragging = dragRatio !== null;
-  // 0 = day (inline start), 1 = night (inline end)
-  const ratio = dragRatio ?? (time === "day" ? 0 : 1);
+  const boxRef = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState(0.5); // 0 = all day, 1 = all night
+  const [dragging, setDragging] = useState(false);
 
-  function ratioFromPointer(clientX: number): number {
-    const el = trackRef.current;
-    if (!el) return ratio;
+  function posFromPointer(clientX: number): number {
+    const el = boxRef.current;
+    if (!el) return pos;
     const rect = el.getBoundingClientRect();
-    let r = (clientX - rect.left) / rect.width;
-    if (getComputedStyle(el).direction === "rtl") r = 1 - r;
-    return Math.max(0, Math.min(1, r));
-  }
-
-  function commit(r: number) {
-    setDragRatio(null);
-    onChange(r > 0.5 ? "night" : "day");
+    return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
   }
 
   return (
     <div
-      ref={trackRef}
-      className={`dn-slider${dragging ? " dragging" : ""}`}
-      role="switch"
-      aria-checked={time === "night"}
+      ref={boxRef}
+      className={`compare${dragging ? " dragging" : ""}`}
+      role="slider"
       aria-label={`${labels.daySlot} / ${labels.nightSlot}`}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(pos * 100)}
       tabIndex={0}
       onPointerDown={(e) => {
         e.currentTarget.setPointerCapture(e.pointerId);
-        setDragRatio(ratioFromPointer(e.clientX));
+        setDragging(true);
+        setPos(posFromPointer(e.clientX));
       }}
       onPointerMove={(e) => {
-        if (dragging) setDragRatio(ratioFromPointer(e.clientX));
+        if (dragging) setPos(posFromPointer(e.clientX));
       }}
-      onPointerUp={(e) => commit(ratioFromPointer(e.clientX))}
-      onPointerCancel={() => setDragRatio(null)}
+      onPointerUp={() => setDragging(false)}
+      onPointerCancel={() => setDragging(false)}
       onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onChange(time === "day" ? "night" : "day");
-        } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-          e.preventDefault();
-          const rtl =
-            trackRef.current &&
-            getComputedStyle(trackRef.current).direction === "rtl";
-          const towardsEnd = rtl ? e.key === "ArrowLeft" : e.key === "ArrowRight";
-          onChange(towardsEnd ? "night" : "day");
-        }
+        if (e.key === "ArrowLeft") setPos((p) => Math.max(0, p - 0.1));
+        if (e.key === "ArrowRight") setPos((p) => Math.min(1, p + 0.1));
       }}
     >
-      <span className={`dn-end${time === "day" ? " active" : ""}`}>
+      {/* Base layer: day. Top layer: night, clipped to the right of the divider. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={pair.day} alt={pair.alt} draggable={false} />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={pair.night}
+        alt=""
+        draggable={false}
+        className="compare-top"
+        style={{ clipPath: `inset(0 0 0 ${pos * 100}%)` }}
+      />
+
+      <span className="gallery-badge compare-label-day" style={{ opacity: pos > 0.08 ? 1 : 0 }}>
         <IconSun /> {labels.daySlot}
       </span>
-      <span className={`dn-end${time === "night" ? " active" : ""}`}>
+      <span className="gallery-badge compare-label-night" style={{ opacity: pos < 0.92 ? 1 : 0 }}>
         <IconMoon /> {labels.nightSlot}
       </span>
-      <span
-        className="dn-thumb"
-        style={{ insetInlineStart: `calc(5px + ${ratio} * (100% - 52px))` }}
-        aria-hidden="true"
-      >
-        <span className="dn-arrow">{ratio > 0.5 ? "←" : "→"}</span>
-      </span>
+
+      <div className="compare-divider" style={{ left: `${pos * 100}%` }} aria-hidden="true">
+        <span className="compare-knob">
+          <span>‹</span>
+          <span>›</span>
+        </span>
+      </div>
     </div>
   );
 }
 
-/** Gallery with the day↔night slider and category tabs. */
+/** Gallery: category tabs, each showing day↔night comparison photos. */
 export function GallerySection({
-  images,
+  pairs,
   labels,
 }: {
-  images: readonly GalleryImage[];
+  pairs: readonly GalleryPair[];
   labels: Labels;
 }) {
-  const [time, setTime] = useState<"day" | "night">("day");
   const [category, setCategory] = useState<"pool" | "interiors" | "views">("pool");
 
   const tabs = [
@@ -115,18 +110,11 @@ export function GallerySection({
     { key: "views" as const, label: labels.tabViews },
   ];
 
-  // Show the active category with shots matching the day/night slider first,
-  // so the grid always has content even when a category has one shot per time.
-  const shown = images
-    .filter((img) => img.category === category)
-    .slice()
-    .sort((a, b) => (a.time === time ? -1 : 0) - (b.time === time ? -1 : 0));
+  const shown = pairs.filter((p) => p.category === category);
 
   return (
     <>
-      <DayNightSlider time={time} onChange={setTime} labels={labels} />
-
-      <div className="tab-row" style={{ marginTop: "var(--space-4)" }}>
+      <div className="tab-row">
         {tabs.map((t) => (
           <button
             key={t.key}
@@ -139,16 +127,11 @@ export function GallerySection({
         ))}
       </div>
 
-      <div className="gallery-grid">
-        {shown.map((img) => (
-          <figure key={img.src} className="gallery-item" style={{ margin: 0 }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={img.src} alt={img.alt} loading="lazy" />
-            <span className="gallery-badge">
-              {img.time === "day" ? <IconSun /> : <IconMoon />}
-              {img.time === "day" ? labels.daySlot : labels.nightSlot}
-            </span>
-          </figure>
+      <p className="compare-hint">{labels.galleryDragHint}</p>
+
+      <div className={`gallery-grid${shown.length === 1 ? " single" : ""}`}>
+        {shown.map((pair) => (
+          <DayNightCompare key={pair.day} pair={pair} labels={labels} />
         ))}
       </div>
     </>

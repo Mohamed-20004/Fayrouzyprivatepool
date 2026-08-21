@@ -35,6 +35,7 @@ const en = {
   tabPool: "Pool",
   tabInteriors: "Interiors",
   tabViews: "Views",
+  galleryDragHint: "→ Drag the arrow across the photo to move between day and night",
 
   // Booking section
   bookEyebrow: "Reservations",
@@ -180,6 +181,7 @@ const ar: Dictionary = {
   tabPool: "المسبح",
   tabInteriors: "الداخل",
   tabViews: "الإطلالات",
+  galleryDragHint: "← اسحب السهم عبر الصورة للتنقل بين النهار والليل",
 
   bookEyebrow: "الحجوزات",
   bookTitle1: "احجز",
@@ -313,6 +315,7 @@ const fr: Dictionary = {
   tabPool: "Piscine",
   tabInteriors: "Intérieurs",
   tabViews: "Vues",
+  galleryDragHint: "→ Faites glisser la flèche sur la photo pour passer du jour à la nuit",
 
   bookEyebrow: "Réservations",
   bookTitle1: "Réservez",

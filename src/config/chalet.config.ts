@@ -107,21 +107,35 @@ export const chaletConfig = {
   heroImage: "/gallery/hero.jpg",
 
   /**
-   * PLACEHOLDER — gallery images (replace files in /public/gallery).
-   * `category` drives the gallery tabs; `time` drives the Day/Night filter.
+   * PLACEHOLDER — gallery image pairs (replace files in /public/gallery).
+   * Each entry is the SAME angle shot by day and by night; the gallery shows
+   * them as one photo with a draggable divider that wipes between the two.
+   * `category` drives the gallery tabs.
    */
   gallery: [
-    { src: "/gallery/pool-day.svg", alt: "Infinity pool at golden hour", category: "pool", time: "day" },
-    { src: "/gallery/pool-night.svg", alt: "The pool lit at night", category: "pool", time: "night" },
-    { src: "/gallery/interior-day.svg", alt: "Grand living room in daylight", category: "interiors", time: "day" },
-    { src: "/gallery/interior-night.svg", alt: "Living room by lamplight", category: "interiors", time: "night" },
-    { src: "/gallery/view-day.svg", alt: "Valley views above the treeline", category: "views", time: "day" },
-    { src: "/gallery/view-night.svg", alt: "Stars over the ridge", category: "views", time: "night" },
+    {
+      category: "pool",
+      alt: "The pool, day and night",
+      day: "/gallery/pool-day.svg",
+      night: "/gallery/pool-night.svg",
+    },
+    {
+      category: "interiors",
+      alt: "The living space, day and night",
+      day: "/gallery/interior-day.svg",
+      night: "/gallery/interior-night.svg",
+    },
+    {
+      category: "views",
+      alt: "The view, day and night",
+      day: "/gallery/view-day.svg",
+      night: "/gallery/view-night.svg",
+    },
   ] as ReadonlyArray<{
-    src: string;
-    alt: string;
     category: "pool" | "interiors" | "views";
-    time: "day" | "night";
+    alt: string;
+    day: string;
+    night: string;
   }>,
 
   /**
