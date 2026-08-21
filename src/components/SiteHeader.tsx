@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { Locale } from "@/i18n/config";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { BrandLockup } from "@/components/BrandLockup";
 
 type NavLabels = {
   navGallery: string;
@@ -40,7 +41,7 @@ export function SiteHeader({
     <header className={`site-header${scrolled ? " scrolled" : ""}`}>
       <div className="container">
         <Link href={`/${locale}`} className="brand">
-          {name}
+          <BrandLockup name={name} variant="header" />
         </Link>
         <nav className="main-nav">
           <Link href={`/${locale}#gallery`}>{labels.navGallery}</Link>

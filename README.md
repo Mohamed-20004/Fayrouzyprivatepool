@@ -184,6 +184,15 @@ data/chalet.db                SQLite database (gitignored)
 - Payment provider webhooks and the WhatsApp webhook must be reachable from
   the internet.
 
+## ⚠ Font license before launch
+
+The "Fayrouzy" wordmark uses **Themysion** (Creatype Studio), self-hosted at
+`public/fonts/Themysion.ttf`. The bundled file is the free **personal-use
+demo — commercial use is not allowed**. Before the site starts taking real
+bookings, purchase the commercial license at
+<https://creatypestudio.co/themysion> (the licensed file is identical, so
+nothing needs to change in the code).
+
 ## Still needed from the owner
 
 Chalet name/logo/colors, photos, map coordinates + address, the four prices +

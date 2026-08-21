@@ -2,6 +2,20 @@
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Poppins:wght@300;400;500&family=Amiri:wght@400;700&family=Noto+Sans+Arabic:wght@300;400;500&family=IBM+Plex+Mono:wght@400&display=swap");
 @import "./theme.css";
 
+/*
+ * Brand script face for the "Fayrouzy" wordmark.
+ * LICENSE NOTE: Themysion (Creatype Studio) — the bundled file is the
+ * personal-use demo. Purchase the commercial license before launch:
+ * https://creatypestudio.co/themysion (the licensed file is identical).
+ */
+@font-face {
+  font-family: "Themysion";
+  src: url("/fonts/Themysion.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 *,
 *::before,
 *::after {
@@ -153,16 +167,53 @@ h3 {
   padding-bottom: var(--space-2);
 }
 .brand {
-  font-family: var(--font-serif);
-  font-size: 1rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--brand-accent);
   text-decoration: none;
   white-space: nowrap;
 }
-[dir="rtl"] .brand {
-  letter-spacing: 0.06em;
+
+/* ─── Brand lockup: script "Fayrouzy" + spaced-caps "PRIVATE POOL" ───────── */
+.lockup {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1;
+}
+.lockup-script {
+  font-family: var(--font-script);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--brand-accent);
+}
+.lockup-caps {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.34em;
+  color: var(--color-text-muted);
+}
+.lockup-header .lockup-script {
+  font-size: 1.7rem;
+}
+.lockup-header .lockup-caps {
+  font-size: 0.55rem;
+  margin-top: 3px;
+}
+.lockup-footer .lockup-script {
+  font-size: 2.6rem;
+}
+.lockup-footer .lockup-caps {
+  font-size: 0.7rem;
+  margin-top: 6px;
+}
+.lockup-hero .lockup-script {
+  font-size: clamp(4.5rem, 15vw, 8.5rem);
+  color: var(--brand-light);
+}
+.lockup-hero .lockup-caps {
+  font-size: clamp(0.85rem, 2.2vw, 1.3rem);
+  letter-spacing: 0.5em;
+  color: var(--brand-accent);
+  margin-top: var(--space-3);
 }
 
 .main-nav {
@@ -1052,15 +1103,7 @@ section {
   }
 }
 .footer-brand {
-  font-family: var(--font-serif);
-  font-size: 1.3rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--brand-accent);
-  margin-bottom: var(--space-3);
-}
-[dir="rtl"] .footer-brand {
-  letter-spacing: 0.05em;
+  margin: 0 0 var(--space-3);
 }
 .footer-blurb {
   color: var(--color-text-muted);

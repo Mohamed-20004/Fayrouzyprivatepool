@@ -6,6 +6,7 @@ import { chaletConfig } from "@/config/chalet.config";
 import { dirFor, isLocale, locales, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { SiteHeader } from "@/components/SiteHeader";
+import { BrandLockup } from "@/components/BrandLockup";
 import {
   IconClock,
   IconFacebook,
@@ -70,7 +71,9 @@ export default async function LocaleLayout({
           <div className="container">
             <div className="footer-grid">
               <div>
-                <p className="footer-brand">{chaletConfig.name}</p>
+                <p className="footer-brand">
+                  <BrandLockup name={chaletConfig.name} variant="footer" />
+                </p>
                 <p className="footer-blurb">{dict.footerBlurb}</p>
                 <p className="footer-caps">{location.shortAddress}</p>
               </div>

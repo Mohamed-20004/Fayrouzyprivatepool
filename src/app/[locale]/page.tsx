@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { chaletConfig } from "@/config/chalet.config";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
+import { BrandLockup } from "@/components/BrandLockup";
 import { GallerySection } from "@/components/GallerySection";
 import { BookingSection } from "@/components/BookingSection";
 import {
@@ -33,10 +34,6 @@ export default async function HomePage({
   const maxMonth = `${Number(today.slice(0, 4)) + 1}-${String(
     chaletConfig.season.endMonth
   ).padStart(2, "0")}`;
-
-  // Hero title: first word cream, the rest gold (per the design).
-  const [firstWord, ...restWords] = chaletConfig.name.split(" ");
-  const restName = restWords.join(" ");
 
   const fromPrice = Math.min(...Object.values(chaletConfig.prices));
   const { lat, lng } = chaletConfig.location;
@@ -73,13 +70,7 @@ export default async function HomePage({
           <div className="hero-inner">
             <span className="hero-eyebrow">{dict.heroEyebrow}</span>
             <h1 className="hero-title">
-              {firstWord}
-              {restName && (
-                <>
-                  <br />
-                  <span className="accent">{restName}</span>
-                </>
-              )}
+              <BrandLockup name={chaletConfig.name} variant="hero" />
             </h1>
             <p className="hero-lead">{dict.tagline}</p>
             <div className="hero-ctas">

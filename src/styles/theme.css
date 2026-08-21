@@ -43,6 +43,7 @@
   --font-sans: "Poppins", "Noto Sans Arabic", system-ui, -apple-system,
     "Segoe UI", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-script: "Themysion", "Segoe Script", cursive; /* brand wordmark */
 
   --track-caps: 0.32em; /* eyebrow/nav letter-spacing */
   --track-btn: 0.18em;
