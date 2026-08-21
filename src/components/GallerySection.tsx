@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { IconMoon, IconSun } from "@/components/Icons";
 
@@ -16,7 +16,89 @@ type Labels = Pick<
   "daySlot" | "nightSlot" | "tabPool" | "tabInteriors" | "tabViews"
 >;
 
-/** Gallery with the design's Day/Night toggle and category tabs. */
+/**
+ * Day ↔ Night slider: a track with an arrow knob the guest drags (or taps
+ * the other side / uses arrow keys) to move between day and night. Positions
+ * use logical (inline) coordinates so the whole control mirrors in RTL.
+ */
+function DayNightSlider({
+  time,
+  onChange,
+  labels,
+}: {
+  time: "day" | "night";
+  onChange: (t: "day" | "night") => void;
+  labels: Pick<Labels, "daySlot" | "nightSlot">;
+}) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [dragRatio, setDragRatio] = useState<number | null>(null);
+  const dragging = dragRatio !== null;
+  // 0 = day (inline start), 1 = night (inline end)
+  const ratio = dragRatio ?? (time === "day" ? 0 : 1);
+
+  function ratioFromPointer(clientX: number): number {
+    const el = trackRef.current;
+    if (!el) return ratio;
+    const rect = el.getBoundingClientRect();
+    let r = (clientX - rect.left) / rect.width;
+    if (getComputedStyle(el).direction === "rtl") r = 1 - r;
+    return Math.max(0, Math.min(1, r));
+  }
+
+  function commit(r: number) {
+    setDragRatio(null);
+    onChange(r > 0.5 ? "night" : "day");
+  }
+
+  return (
+    <div
+      ref={trackRef}
+      className={`dn-slider${dragging ? " dragging" : ""}`}
+      role="switch"
+      aria-checked={time === "night"}
+      aria-label={`${labels.daySlot} / ${labels.nightSlot}`}
+      tabIndex={0}
+      onPointerDown={(e) => {
+        e.currentTarget.setPointerCapture(e.pointerId);
+        setDragRatio(ratioFromPointer(e.clientX));
+      }}
+      onPointerMove={(e) => {
+        if (dragging) setDragRatio(ratioFromPointer(e.clientX));
+      }}
+      onPointerUp={(e) => commit(ratioFromPointer(e.clientX))}
+      onPointerCancel={() => setDragRatio(null)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onChange(time === "day" ? "night" : "day");
+        } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+          e.preventDefault();
+          const rtl =
+            trackRef.current &&
+            getComputedStyle(trackRef.current).direction === "rtl";
+          const towardsEnd = rtl ? e.key === "ArrowLeft" : e.key === "ArrowRight";
+          onChange(towardsEnd ? "night" : "day");
+        }
+      }}
+    >
+      <span className={`dn-end${time === "day" ? " active" : ""}`}>
+        <IconSun /> {labels.daySlot}
+      </span>
+      <span className={`dn-end${time === "night" ? " active" : ""}`}>
+        <IconMoon /> {labels.nightSlot}
+      </span>
+      <span
+        className="dn-thumb"
+        style={{ insetInlineStart: `calc(5px + ${ratio} * (100% - 52px))` }}
+        aria-hidden="true"
+      >
+        <span className="dn-arrow">{ratio > 0.5 ? "←" : "→"}</span>
+      </span>
+    </div>
+  );
+}
+
+/** Gallery with the day↔night slider and category tabs. */
 export function GallerySection({
   images,
   labels,
@@ -33,7 +115,7 @@ export function GallerySection({
     { key: "views" as const, label: labels.tabViews },
   ];
 
-  // Show the active category with shots matching the Day/Night toggle first,
+  // Show the active category with shots matching the day/night slider first,
   // so the grid always has content even when a category has one shot per time.
   const shown = images
     .filter((img) => img.category === category)
@@ -42,22 +124,7 @@ export function GallerySection({
 
   return (
     <>
-      <div className="seg-toggle" role="group">
-        <button
-          type="button"
-          className={time === "day" ? "active" : ""}
-          onClick={() => setTime("day")}
-        >
-          <IconSun /> {labels.daySlot}
-        </button>
-        <button
-          type="button"
-          className={time === "night" ? "active" : ""}
-          onClick={() => setTime("night")}
-        >
-          <IconMoon /> {labels.nightSlot}
-        </button>
-      </div>
+      <DayNightSlider time={time} onChange={setTime} labels={labels} />
 
       <div className="tab-row" style={{ marginTop: "var(--space-4)" }}>
         {tabs.map((t) => (
