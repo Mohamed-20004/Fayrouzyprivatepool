@@ -68,7 +68,7 @@ export default async function BookPage({
         <BookingForm locale={l} date={date} slot={s} labels={dict} />
 
         <p style={{ textAlign: "center", marginTop: "var(--space-3)" }}>
-          <Link href={`/${l}#calendar`}>{dict.backToCalendar}</Link>
+          <Link href={`/${l}#book`}>{dict.backToCalendar}</Link>
         </p>
       </div>
     </div>

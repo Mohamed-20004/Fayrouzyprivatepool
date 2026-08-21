@@ -3,6 +3,7 @@ import { chaletConfig } from "@/config/chalet.config";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { BrandLockup } from "@/components/BrandLockup";
+import { ScrollLink } from "@/components/ScrollLink";
 import { GallerySection } from "@/components/GallerySection";
 import { BookingSection } from "@/components/BookingSection";
 import {
@@ -74,12 +75,12 @@ export default async function HomePage({
             </h1>
             <p className="hero-lead">{dict.tagline}</p>
             <div className="hero-ctas">
-              <a className="btn" href="#book">
+              <ScrollLink locale={l} anchor="book" className="btn">
                 {dict.ctaReserve}
-              </a>
-              <a className="btn btn-secondary" href="#gallery">
+              </ScrollLink>
+              <ScrollLink locale={l} anchor="gallery" className="btn btn-secondary">
                 {dict.ctaExplore}
-              </a>
+              </ScrollLink>
             </div>
           </div>
         </div>

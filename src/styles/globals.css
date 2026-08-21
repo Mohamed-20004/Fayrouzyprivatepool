@@ -455,6 +455,11 @@ h3 {
 section {
   padding: var(--space-6) 0;
 }
+/* When a section is reached via a #hash, clear the sticky header. */
+section[id],
+footer[id] {
+  scroll-margin-top: 80px;
+}
 .section-head {
   display: flex;
   flex-wrap: wrap;

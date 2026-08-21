@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { Locale } from "@/i18n/config";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { BrandLockup } from "@/components/BrandLockup";
+import { ScrollLink } from "@/components/ScrollLink";
 
 type NavLabels = {
   navGallery: string;
@@ -31,6 +32,12 @@ export function SiteHeader({
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
+    // Always open at the top of the page: disable the browser's scroll
+    // restoration on reload/revisit — unless the URL deliberately targets a
+    // section via a #hash (deep links still work).
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    if (!window.location.hash) window.scrollTo(0, 0);
+
     const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -44,17 +51,17 @@ export function SiteHeader({
           <BrandLockup name={name} variant="header" />
         </Link>
         <nav className="main-nav">
-          <Link href={`/${locale}#gallery`}>{labels.navGallery}</Link>
-          <Link href={`/${locale}#book`}>{labels.navBook}</Link>
-          <Link href={`/${locale}#location`}>{labels.navLocation}</Link>
-          <Link href={`/${locale}#reviews`}>{labels.navReviews}</Link>
-          <Link href={`/${locale}#contact`}>{labels.navContact}</Link>
+          <ScrollLink locale={locale} anchor="gallery">{labels.navGallery}</ScrollLink>
+          <ScrollLink locale={locale} anchor="book">{labels.navBook}</ScrollLink>
+          <ScrollLink locale={locale} anchor="location">{labels.navLocation}</ScrollLink>
+          <ScrollLink locale={locale} anchor="reviews">{labels.navReviews}</ScrollLink>
+          <ScrollLink locale={locale} anchor="contact">{labels.navContact}</ScrollLink>
         </nav>
         <div className="header-actions">
           <LanguageSwitcher current={locale} />
-          <Link href={`/${locale}#book`} className="btn-reserve">
+          <ScrollLink locale={locale} anchor="book" className="btn-reserve">
             {labels.reserve}
-          </Link>
+          </ScrollLink>
         </div>
       </div>
     </header>
