@@ -184,14 +184,17 @@ data/chalet.db                SQLite database (gitignored)
 - Payment provider webhooks and the WhatsApp webhook must be reachable from
   the internet.
 
-## ⚠ Font license before launch
+## ⚠ Font licenses before launch
 
-The "Fayrouzy" wordmark uses **Themysion** (Creatype Studio), self-hosted at
-`public/fonts/Themysion.ttf`. The bundled file is the free **personal-use
-demo — commercial use is not allowed**. Before the site starts taking real
-bookings, purchase the commercial license at
-<https://creatypestudio.co/themysion> (the licensed file is identical, so
-nothing needs to change in the code).
+Two self-hosted brand fonts are bundled as free **personal-use versions —
+commercial use is not allowed** until their licenses are purchased. Before
+the site starts taking real bookings, buy both (the licensed files are
+identical, so nothing needs to change in the code):
+
+| Font | Used for | File | License |
+|---|---|---|---|
+| Themysion (Creatype Studio) | "Fayrouzy" script wordmark | `public/fonts/Themysion.ttf` | <https://creatypestudio.co/themysion> |
+| Nourd Bold (Hanken Design Co.) | "PRIVATE POOL" caps, nav, all buttons | `public/fonts/NourdBold.ttf` | <https://hanken.co/products/nourd> |
 
 ## Still needed from the owner
 

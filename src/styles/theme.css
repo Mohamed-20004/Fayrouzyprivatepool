@@ -44,6 +44,8 @@
     "Segoe UI", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --font-script: "Themysion", "Segoe Script", cursive; /* brand wordmark */
+  /* Buttons, nav, lockup caps. Arabic falls through to Noto Sans Arabic. */
+  --font-action: "Nourd", "Poppins", "Noto Sans Arabic", sans-serif;
 
   --track-caps: 0.32em; /* eyebrow/nav letter-spacing */
   --track-btn: 0.18em;

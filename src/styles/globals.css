@@ -16,6 +16,20 @@
   font-display: swap;
 }
 
+/*
+ * Action face: Nourd Bold (Hanken Design Co.) — used for the lockup caps,
+ * nav links, and all buttons. Same license situation as Themysion: the
+ * bundled file is the personal-use version; purchase the commercial license
+ * before launch: https://hanken.co/products/nourd
+ */
+@font-face {
+  font-family: "Nourd";
+  src: url("/fonts/NourdBold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 *,
 *::before,
 *::after {
@@ -101,9 +115,9 @@ h3 {
   border: 1px solid var(--brand-accent);
   border-radius: var(--radius);
   padding: 14px 32px;
-  font-family: var(--font-sans);
+  font-family: var(--font-action);
   font-size: 0.8rem;
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: var(--track-btn);
   text-transform: uppercase;
   text-decoration: none;
@@ -185,8 +199,8 @@ h3 {
   color: var(--brand-accent);
 }
 .lockup-caps {
-  font-family: var(--font-sans);
-  font-weight: 400;
+  font-family: var(--font-action);
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.34em;
   color: var(--color-text-muted);
@@ -227,8 +241,9 @@ h3 {
   display: none;
 }
 .main-nav a {
+  font-family: var(--font-action);
   font-size: 0.72rem;
-  font-weight: 400;
+  font-weight: 700;
   letter-spacing: var(--track-caps);
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -252,6 +267,8 @@ h3 {
   color: var(--brand-accent);
   background: transparent;
   padding: 10px 22px;
+  font-family: var(--font-action);
+  font-weight: 700;
   font-size: 0.72rem;
   letter-spacing: var(--track-btn);
   text-transform: uppercase;
@@ -551,7 +568,8 @@ section {
   border: none;
   border-bottom: 2px solid transparent;
   color: var(--color-text-muted);
-  font-family: var(--font-sans);
+  font-family: var(--font-action);
+  font-weight: 700;
   font-size: 0.75rem;
   letter-spacing: var(--track-caps);
   text-transform: uppercase;
@@ -904,6 +922,8 @@ section {
   padding: var(--space-3);
   text-align: center;
   cursor: pointer;
+  font-family: var(--font-action);
+  font-weight: 700;
   font-size: 0.8rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
