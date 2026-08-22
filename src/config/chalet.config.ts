@@ -31,18 +31,20 @@ export const chaletConfig = {
     night: { start: "19:00", end: "17:00", endsNextDay: true },
   },
 
-  /** Currency code used for all prices. PLACEHOLDER — confirm with owner. */
+  /** Currency code used for all prices. */
   currency: "USD",
 
   /**
-   * The four base prices. PLACEHOLDER values — owner supplies real prices.
-   * Weekend = Friday and Saturday.
+   * The four base prices (owner-supplied).
+   * Weekend = Friday and Saturday (a night is priced by its start date, so
+   * "weekend" nights are Friday night and Saturday night). Day slots cost
+   * the same all week.
    */
   prices: {
-    dayWeekday: 150,
-    dayWeekend: 200,
-    nightWeekday: 250,
-    nightWeekend: 320,
+    dayWeekday: 100,
+    dayWeekend: 100,
+    nightWeekday: 140,
+    nightWeekend: 160,
   },
 
   /** Days counted as weekend (0=Sun … 5=Fri, 6=Sat). Friday + Saturday. */

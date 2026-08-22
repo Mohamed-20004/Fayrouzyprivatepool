@@ -66,7 +66,7 @@ export function Calendar({
 }: CalendarProps) {
   const router = useRouter();
   const [month, setMonth] = useState(initialMonth);
-  const [view, setView] = useState<"day" | "night">("day");
+  const [view, setView] = useState<"day" | "night">("night");
   const [cache, setCache] = useState<Record<string, DaySlots[]>>({});
   const days = cache[month];
 
