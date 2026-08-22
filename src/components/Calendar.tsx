@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
+import { IconMoon, IconSun } from "@/components/Icons";
 
 type SlotState = "available" | "booked" | "blocked" | "closed";
 type DaySlots = {
@@ -36,7 +37,7 @@ interface CalendarProps {
   maxMonth: string;
   /** When set, slot clicks call this instead of navigating to the booking page. */
   onSelect?: (date: string, slot: "day" | "night", price: number) => void;
-  /** Currently selected slot (rebook flow highlight). */
+  /** Currently selected slot (summary / rebook flow highlight). */
   selected?: { date: string; slot: "day" | "night" } | null;
 }
 
@@ -46,6 +47,13 @@ function addMonths(month: string, delta: number): string {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 
+/**
+ * Availability calendar. Day and night bookings are separate views — the
+ * segmented toggle switches between them, and each date shows one clear
+ * state for the chosen slot type. Cross-day rules from the booking engine
+ * surface here as "blocked" (e.g. a night booking blocks the next day's
+ * day slot until 17:00).
+ */
 export function Calendar({
   locale,
   labels,
@@ -58,6 +66,7 @@ export function Calendar({
 }: CalendarProps) {
   const router = useRouter();
   const [month, setMonth] = useState(initialMonth);
+  const [view, setView] = useState<"day" | "night">("day");
   const [cache, setCache] = useState<Record<string, DaySlots[]>>({});
   const days = cache[month];
 
@@ -97,44 +106,39 @@ export function Calendar({
     return (dow + 6) % 7; // Monday-based offset
   }, [month]);
 
-  const handleClick = useCallback(
-    (date: string, slot: "day" | "night", price: number) => {
-      if (onSelect) onSelect(date, slot, price);
-      else router.push(`/${locale}/book?date=${date}&slot=${slot}`);
+  const handlePick = useCallback(
+    (date: string, price: number) => {
+      if (onSelect) onSelect(date, view, price);
+      else router.push(`/${locale}/book?date=${date}&slot=${view}`);
     },
-    [onSelect, router, locale]
+    [onSelect, router, locale, view]
   );
 
-  const dayNum = (date: string) =>
-    new Intl.NumberFormat(locale).format(Number(date.slice(8)));
-
-  function chip(d: DaySlots, slot: "day" | "night") {
-    const info = d[slot];
-    const isSelected =
-      selected && selected.date === d.date && selected.slot === slot;
-    const icon = slot === "day" ? "☀" : "🌙";
-    const label = slot === "day" ? labels.daySlot : labels.nightSlot;
-    const clickable = info.state === "available";
-    return (
-      <button
-        type="button"
-        className={`slot-chip ${info.state}`}
-        style={isSelected ? { outline: "2px solid var(--brand-primary)" } : undefined}
-        disabled={!clickable}
-        onClick={() => clickable && handleClick(d.date, slot, info.price)}
-        aria-label={`${d.date} ${label}: ${info.state}`}
-        title={`${label} — ${info.state === "available" ? `${info.price} ${currency}` : info.state}`}
-      >
-        <span className="slot-icon" aria-hidden="true">
-          {icon}
-        </span>
-        {info.state === "available" ? `${info.price}` : "—"}
-      </button>
-    );
-  }
+  const fmtNum = useMemo(() => new Intl.NumberFormat(locale), [locale]);
 
   return (
     <div className="calendar">
+      <div className="cal-toggle" role="tablist" aria-label={`${labels.daySlot} / ${labels.nightSlot}`}>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={view === "day"}
+          className={view === "day" ? "active" : ""}
+          onClick={() => setView("day")}
+        >
+          <IconSun size={15} /> {labels.daySlot}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={view === "night"}
+          className={view === "night" ? "active" : ""}
+          onClick={() => setView("night")}
+        >
+          <IconMoon size={15} /> {labels.nightSlot}
+        </button>
+      </div>
+
       <div className="calendar-nav">
         <button
           type="button"
@@ -167,24 +171,34 @@ export function Calendar({
             </div>
           ))}
           {Array.from({ length: leadingEmpty }, (_, i) => (
-            <div key={`e${i}`} className="calendar-cell is-empty" />
+            <div key={`e${i}`} className="cal-cell is-empty" />
           ))}
           {days.map((d) => {
-            const allClosed =
-              d.day.state === "closed" && d.night.state === "closed";
+            const info = d[view];
+            const isSelected =
+              selected && selected.date === d.date && selected.slot === view;
+            const bookable = info.state === "available";
+            const stateLabel =
+              info.state === "available"
+                ? labels.legendAvailable
+                : info.state === "booked"
+                  ? labels.legendBooked
+                  : info.state === "blocked"
+                    ? labels.legendBlocked
+                    : labels.legendClosed;
             return (
-              <div
+              <button
                 key={d.date}
-                className={`calendar-cell${allClosed ? " all-closed" : ""}`}
+                type="button"
+                className={`cal-cell ${info.state}${isSelected ? " selected" : ""}`}
+                disabled={!bookable}
+                onClick={() => bookable && handlePick(d.date, info.price)}
+                aria-label={`${d.date} — ${stateLabel}${bookable ? ` — ${info.price} ${currency}` : ""}`}
+                title={`${stateLabel}${bookable ? ` · ${info.price} ${currency}` : ""}`}
               >
-                <div className="date-num">{dayNum(d.date)}</div>
-                {!allClosed && (
-                  <>
-                    {chip(d, "day")}
-                    {chip(d, "night")}
-                  </>
-                )}
-              </div>
+                <span className="cal-num">{fmtNum.format(Number(d.date.slice(8)))}</span>
+                {bookable && <span className="cal-price">{fmtNum.format(info.price)}</span>}
+              </button>
             );
           })}
         </div>

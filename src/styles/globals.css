@@ -734,73 +734,111 @@ footer[id] {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.calendar-cell {
-  border: 1px solid var(--color-border);
-  padding: 4px;
-  min-height: 66px;
+/* Segmented Day/Night toggle above the calendar. */
+.cal-toggle {
   display: flex;
-  flex-direction: column;
-  gap: 3px;
-  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid var(--color-border-accent);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: var(--space-4);
 }
-.calendar-cell.is-empty {
-  border: none;
+.cal-toggle button {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   background: transparent;
-}
-.calendar-cell .date-num {
-  font-size: 0.75rem;
-  font-weight: 400;
-  text-align: center;
+  border: none;
   color: var(--color-text-muted);
+  font-family: var(--font-action);
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 13px 10px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
 }
-.calendar-cell.all-closed {
-  background: var(--color-closed-bg);
-}
-.calendar-cell.all-closed .date-num {
-  color: var(--color-closed);
-  text-decoration: line-through;
+.cal-toggle button.active {
+  background: var(--brand-accent);
+  color: #0b1010;
 }
 
-.slot-chip {
+/* One cell = one date, showing the state of the selected slot type. */
+.cal-cell {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.015);
+  min-height: 58px;
+  padding: 6px 2px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 3px;
-  border: none;
-  border-radius: var(--radius);
-  font-size: 0.68rem;
-  font-weight: 400;
-  padding: 4px 2px;
-  line-height: 1;
-  width: 100%;
   font-family: inherit;
-  transition: outline-color 0.1s;
+  transition: border-color 0.12s, background 0.12s;
 }
-.slot-chip .slot-icon {
-  font-size: 0.7rem;
+@media (min-width: 640px) {
+  .cal-cell {
+    min-height: 66px;
+  }
 }
-.slot-chip.available {
+.cal-cell.is-empty {
+  border: none;
+  background: transparent;
+  min-height: 0;
+}
+.cal-num {
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--brand-light);
+}
+.cal-price {
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--brand-accent);
+}
+.cal-cell.available {
+  border-color: var(--color-border-accent);
   background: var(--color-available-bg);
-  color: var(--color-available);
   cursor: pointer;
 }
-.slot-chip.available:hover {
+.cal-cell.available:hover {
+  border-color: var(--brand-accent);
+  background: rgba(62, 200, 195, 0.2);
+}
+.cal-cell.selected {
+  border-color: var(--brand-accent);
   outline: 1px solid var(--brand-accent);
+  background: rgba(62, 200, 195, 0.26);
 }
-.slot-chip.booked {
+.cal-cell.booked {
   background: var(--color-booked-bg);
+  cursor: not-allowed;
+}
+.cal-cell.booked .cal-num {
   color: var(--color-booked);
-  cursor: not-allowed;
+  text-decoration: line-through;
 }
-.slot-chip.blocked {
+.cal-cell.blocked {
   background: var(--color-blocked-bg);
-  color: var(--color-blocked);
   cursor: not-allowed;
 }
-.slot-chip.closed {
+.cal-cell.blocked .cal-num {
+  color: var(--color-blocked);
+  text-decoration: line-through;
+}
+.cal-cell.closed {
   background: transparent;
-  color: var(--color-closed);
+  border-color: transparent;
   cursor: default;
+}
+.cal-cell.closed .cal-num {
+  color: var(--color-closed);
 }
 
 .calendar-legend {
