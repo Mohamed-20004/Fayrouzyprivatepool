@@ -194,7 +194,7 @@ identical, so nothing needs to change in the code):
 | Font | Used for | File | License |
 |---|---|---|---|
 | Themysion (Creatype Studio) | "Fayrouzy" script wordmark | `public/fonts/Themysion.ttf` | <https://creatypestudio.co/themysion> |
-| Nourd Bold (Hanken Design Co.) | "PRIVATE POOL" caps, nav, all buttons | `public/fonts/NourdBold.ttf` | <https://hanken.co/products/nourd> |
+| Nourd family (Hanken Design Co.) | All site text: Light body, Semi Bold headlines, Bold buttons/nav/caps | `public/fonts/Nourd*.ttf` | <https://hanken.co/products/nourd> |
 
 ## Still needed from the owner
 

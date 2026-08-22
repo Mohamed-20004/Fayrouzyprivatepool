@@ -1,5 +1,5 @@
-/* Display serif + geometric sans (per the Figma design), Arabic pairings, mono accents. */
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Poppins:wght@300;400;500&family=Amiri:wght@400;700&family=Noto+Sans+Arabic:wght@300;400;500&family=IBM+Plex+Mono:wght@400&display=swap");
+/* Arabic companion face — Nourd has no Arabic glyphs, so RTL falls back here. */
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;600;700&display=swap");
 @import "./theme.css";
 
 /*
@@ -17,11 +17,33 @@
 }
 
 /*
- * Action face: Nourd Bold (Hanken Design Co.) — used for the lockup caps,
- * nav links, and all buttons. Same license situation as Themysion: the
- * bundled file is the personal-use version; purchase the commercial license
- * before launch: https://hanken.co/products/nourd
+ * Nourd (Hanken Design Co.) — the site's single text family: Light for
+ * reading text, Semi Bold for headlines, Bold for buttons/nav/labels.
+ * Same license situation as Themysion: the bundled files are the
+ * personal-use version; purchase the commercial license before launch:
+ * https://hanken.co/products/nourd
  */
+@font-face {
+  font-family: "Nourd";
+  src: url("/fonts/NourdLight.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Nourd";
+  src: url("/fonts/NourdRegular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Nourd";
+  src: url("/fonts/NourdSemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
 @font-face {
   font-family: "Nourd";
   src: url("/fonts/NourdBold.ttf") format("truetype");
@@ -48,6 +70,9 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
   line-height: 1.65;
+  /* Never allow stray min-content widths to create sideways scroll. */
+  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 img {
@@ -63,7 +88,7 @@ h1,
 h2,
 h3 {
   font-family: var(--font-serif);
-  font-weight: 400;
+  font-weight: 600;
   line-height: 1.08;
   margin: 0 0 var(--space-3);
   color: var(--brand-light);
@@ -93,7 +118,9 @@ h3 {
 
 .display {
   font-family: var(--font-serif);
-  font-size: clamp(2.4rem, 7vw, 4.5rem);
+  font-weight: 600;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  letter-spacing: -0.01em;
   line-height: 1.05;
   margin: 0 0 var(--space-4);
 }
@@ -637,13 +664,13 @@ footer[id] {
 
 .book-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
   align-items: start;
 }
 @media (min-width: 960px) {
   .book-grid {
-    grid-template-columns: 1.5fr 1fr;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
   }
 }
 
@@ -667,8 +694,8 @@ footer[id] {
 .calendar-nav h3 {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: 1.5rem;
-  font-weight: 400;
+  font-size: 1.4rem;
+  font-weight: 600;
 }
 .calendar-nav button {
   background: none;
@@ -691,7 +718,8 @@ footer[id] {
 
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  /* minmax(0,1fr): columns may compress below their content's width. */
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 4px;
 }
 .calendar-dow {
@@ -702,6 +730,9 @@ footer[id] {
   color: var(--color-text-faint);
   padding: var(--space-2) 0;
   text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .calendar-cell {
   border: 1px solid var(--color-border);
@@ -834,7 +865,8 @@ footer[id] {
 }
 .price-big {
   font-family: var(--font-serif);
-  font-size: 1.5rem;
+  font-weight: 600;
+  font-size: 1.4rem;
   color: var(--brand-accent);
 }
 .summary-hint {
@@ -1049,6 +1081,7 @@ footer[id] {
 }
 .rating-line .score {
   font-family: var(--font-serif);
+  font-weight: 600;
   font-size: 2rem;
   color: var(--brand-accent);
 }

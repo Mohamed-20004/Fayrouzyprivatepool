@@ -39,13 +39,14 @@
   --radius: 2px; /* sharp, luxury-editorial corners */
   --radius-sm: 2px;
   --shadow: 0 1px 0 rgba(0, 0, 0, 0.4), 0 18px 50px rgba(0, 0, 0, 0.35);
-  --font-serif: "Playfair Display", "Amiri", Georgia, "Times New Roman", serif;
-  --font-sans: "Poppins", "Noto Sans Arabic", system-ui, -apple-system,
+  /* One text family site-wide: Nourd (Arabic falls back to Noto Sans Arabic).
+     The role tokens all resolve to it — swap a single line to retheme. */
+  --font-sans: "Nourd", "Noto Sans Arabic", system-ui, -apple-system,
     "Segoe UI", sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-serif: var(--font-sans); /* headlines: Nourd Semi Bold via weight */
+  --font-mono: var(--font-sans); /* small annotations, kept letter-spaced */
   --font-script: "Themysion", "Segoe Script", cursive; /* brand wordmark */
-  /* Buttons, nav, lockup caps. Arabic falls through to Noto Sans Arabic. */
-  --font-action: "Nourd", "Poppins", "Noto Sans Arabic", sans-serif;
+  --font-action: var(--font-sans); /* buttons, nav, lockup caps (Bold) */
 
   --track-caps: 0.32em; /* eyebrow/nav letter-spacing */
   --track-btn: 0.18em;
@@ -58,9 +59,8 @@
   --space-6: 96px;
 }
 
-/* Arabic: pair the serif/sans with faces that carry the same contrast. */
+/* Arabic tweaks (the family falls back to Noto Sans Arabic automatically). */
 [dir="rtl"] {
-  --font-serif: "Amiri", "Playfair Display", Georgia, serif;
   --track-caps: 0.14em; /* Arabic reads poorly with extreme tracking */
   --track-btn: 0.08em;
 }
