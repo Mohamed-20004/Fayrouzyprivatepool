@@ -318,14 +318,17 @@ h3 {
 .lang-switcher {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
 }
 .lang-switcher a {
-  padding: 4px 7px;
-  font-size: 0.7rem;
+  padding: 4px 8px;
+  font-family: var(--font-action);
+  font-weight: 700;
+  font-size: 0.74rem;
   letter-spacing: 0.08em;
   text-decoration: none;
-  color: var(--color-text-faint);
+  /* Bright enough to read over the hero photo and over the dark header. */
+  color: rgba(245, 249, 248, 0.82);
   border-bottom: 1px solid transparent;
 }
 .lang-switcher a.active {
