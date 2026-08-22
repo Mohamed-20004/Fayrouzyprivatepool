@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyRebookToken } from "@/lib/reference";
 import {
   cancelBooking,
-  getBookingByReference,
+  getBookingGroup,
   rebookBooking,
 } from "@/lib/bookings";
 import { isFreelyChangeable } from "@/lib/dates";
@@ -15,15 +15,16 @@ export const dynamic = "force-dynamic";
  * possession of a valid token is the guest's authentication.
  *
  * GET  — current booking details for the reschedule page.
- * POST — { action: "move", date, slot } or { action: "cancel" }.
+ * POST — { action: "move", date, slot } (single-day bookings only)
+ *        or { action: "cancel" } (whole group).
  */
 
 function authenticate(token: string) {
-  const reference = verifyRebookToken(token);
-  if (!reference) return null;
-  const booking = getBookingByReference(reference);
-  if (!booking) return null;
-  return booking;
+  const groupRef = verifyRebookToken(token);
+  if (!groupRef) return null;
+  const rows = getBookingGroup(groupRef);
+  if (rows.length === 0) return null;
+  return rows;
 }
 
 export async function GET(
@@ -31,17 +32,21 @@ export async function GET(
   { params }: { params: Promise<{ token: string }> }
 ) {
   const { token } = await params;
-  const booking = authenticate(token);
-  if (!booking) return NextResponse.json({ error: "invalid_token" }, { status: 404 });
+  const rows = authenticate(token);
+  if (!rows) return NextResponse.json({ error: "invalid_token" }, { status: 404 });
+  const lead = rows[0];
   return NextResponse.json({
-    reference: booking.reference,
-    date: booking.date,
-    slot: booking.slot,
-    status: booking.status,
-    amount: booking.amount,
-    currency: booking.currency,
+    reference: lead.group_ref,
+    dates: rows.map((r) => r.date),
+    slot: lead.slot,
+    status: lead.status,
+    amount: rows.reduce((a, r) => a + r.amount, 0),
+    currency: lead.currency,
     changeable:
-      booking.status === "confirmed" && isFreelyChangeable(booking.date, booking.slot),
+      rows.every((r) => r.status === "confirmed") &&
+      isFreelyChangeable(lead.date, lead.slot),
+    /** Online reschedule is single-day only; groups cancel or call. */
+    rebookable: rows.length === 1,
     phone: chaletConfig.phone,
   });
 }
@@ -51,8 +56,9 @@ export async function POST(
   { params }: { params: Promise<{ token: string }> }
 ) {
   const { token } = await params;
-  const booking = authenticate(token);
-  if (!booking) return NextResponse.json({ error: "invalid_token" }, { status: 404 });
+  const rows = authenticate(token);
+  if (!rows) return NextResponse.json({ error: "invalid_token" }, { status: 404 });
+  const groupRef = rows[0].group_ref;
 
   let body: { action?: string; date?: string; slot?: string };
   try {
@@ -62,7 +68,7 @@ export async function POST(
   }
 
   if (body.action === "cancel") {
-    const result = await cancelBooking(booking.reference);
+    const result = await cancelBooking(groupRef);
     if (!result.ok) {
       const status = result.error === "too_late" ? 403 : 409;
       return NextResponse.json({ error: result.error }, { status });
@@ -72,13 +78,13 @@ export async function POST(
 
   if (body.action === "move") {
     const result = await rebookBooking(
-      booking.reference,
+      groupRef,
       String(body.date ?? ""),
       body.slot as "day" | "night"
     );
     if (!result.ok) {
       const status =
-        result.error === "too_late"
+        result.error === "too_late" || result.error === "not_rebookable"
           ? 403
           : result.error === "slot_unavailable"
             ? 409

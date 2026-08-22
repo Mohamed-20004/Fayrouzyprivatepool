@@ -37,9 +37,9 @@ function seed() {
   const today = todayInChaletTz();
   const insertBooking = db.prepare(
     `INSERT INTO bookings
-       (reference, date, slot, status, guest_name, whatsapp, locale, amount,
-        currency, payment_provider, payment_ref, created_at, confirmed_at)
-     VALUES (?, ?, ?, 'confirmed', ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       (reference, group_ref, date, slot, status, guest_name, whatsapp, locale,
+        amount, currency, payment_provider, payment_ref, created_at, confirmed_at)
+     VALUES (?, ?, ?, ?, 'confirmed', ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   );
   const insertPayment = db.prepare(
     `INSERT INTO payments
@@ -97,6 +97,7 @@ function seed() {
     const now = Date.now();
 
     const res = insertBooking.run(
+      reference,
       reference,
       date,
       p.slot,

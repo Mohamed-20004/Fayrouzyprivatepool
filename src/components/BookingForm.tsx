@@ -19,19 +19,23 @@ type Labels = Pick<
   | "errWhatsapp"
   | "errSlotTaken"
   | "errGeneric"
+  | "errNoAvailability"
 >;
+
+/** What is being booked: explicit consecutive dates, or a flexible request. */
+export type BookingRequest =
+  | { kind: "dates"; dates: string[]; slot: "day" | "night" }
+  | { kind: "flexible"; month: string; count: number; slot: "day" | "night" };
 
 const E164_RE = /^\+[1-9][\d\s\-()]{6,20}$/;
 
 export function BookingForm({
   locale,
-  date,
-  slot,
+  booking,
   labels,
 }: {
   locale: Locale;
-  date: string;
-  slot: "day" | "night";
+  booking: BookingRequest;
   labels: Labels;
 }) {
   const [name, setName] = useState("");
@@ -50,12 +54,18 @@ export function BookingForm({
 
     setSubmitting(true);
     try {
+      const payload =
+        booking.kind === "dates"
+          ? { dates: booking.dates, slot: booking.slot }
+          : {
+              flexible: { month: booking.month, count: booking.count },
+              slot: booking.slot,
+            };
       const res = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          date,
-          slot,
+          ...payload,
           guestName: name.trim(),
           whatsapp: whatsapp.trim(),
           locale,
@@ -68,7 +78,12 @@ export function BookingForm({
         return;
       }
       if (res.status === 409) {
-        setErrors({ form: labels.errSlotTaken });
+        setErrors({
+          form:
+            data.error === "no_availability"
+              ? labels.errNoAvailability
+              : labels.errSlotTaken,
+        });
       } else if (data.error === "invalid_whatsapp") {
         setErrors({ whatsapp: labels.errWhatsapp });
       } else {

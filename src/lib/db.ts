@@ -27,7 +27,7 @@ function migrate(db: Database.Database) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS bookings (
       id            INTEGER PRIMARY KEY AUTOINCREMENT,
-      reference     TEXT NOT NULL UNIQUE,          -- guest-facing booking reference
+      reference     TEXT NOT NULL UNIQUE,          -- internal per-row reference
       date          TEXT NOT NULL,                 -- YYYY-MM-DD, chalet-local calendar date
       slot          TEXT NOT NULL CHECK (slot IN ('day','night')),
       status        TEXT NOT NULL CHECK (status IN ('hold','confirmed','cancelled','expired')),
@@ -86,11 +86,24 @@ function migrate(db: Database.Database) {
       created_at INTEGER NOT NULL
     );
   `);
+
+  // Multi-day bookings: consecutive dates share a guest-facing group_ref.
+  // Older rows are their own group.
+  const cols = db.prepare(`PRAGMA table_info(bookings)`).all() as Array<{ name: string }>;
+  if (!cols.some((c) => c.name === "group_ref")) {
+    db.exec(`ALTER TABLE bookings ADD COLUMN group_ref TEXT`);
+  }
+  db.exec(`
+    UPDATE bookings SET group_ref = reference WHERE group_ref IS NULL;
+    CREATE INDEX IF NOT EXISTS idx_bookings_group ON bookings(group_ref);
+  `);
 }
 
 export type BookingRow = {
   id: number;
   reference: string;
+  /** Guest-facing reference shared by all rows of a multi-day booking. */
+  group_ref: string;
   date: string;
   slot: "day" | "night";
   status: "hold" | "confirmed" | "cancelled" | "expired";

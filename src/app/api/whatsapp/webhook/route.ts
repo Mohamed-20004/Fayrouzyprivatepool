@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cancelBooking, getBookingByReference } from "@/lib/bookings";
+import { cancelBooking, getBookingGroup } from "@/lib/bookings";
 import { isFreelyChangeable } from "@/lib/dates";
 import {
   sendRebookLink,
@@ -65,22 +65,27 @@ export async function POST(request: NextRequest) {
     const [action, reference] = buttonId.split("|");
     if (!reference) continue;
 
-    const booking = getBookingByReference(reference);
-    if (!booking) continue;
+    const rows = getBookingGroup(reference);
+    if (rows.length === 0) continue;
+    const lead = rows[0];
     // Only the guest who booked may act on it.
-    if (booking.whatsapp.replace(/^\+/, "") !== m.from.replace(/^\+/, "")) continue;
+    if (lead.whatsapp.replace(/^\+/, "") !== m.from.replace(/^\+/, "")) continue;
 
     if (action === "cancel") {
       const result = await cancelBooking(reference);
       if (!result.ok && result.error === "too_late") {
-        await sendTooLateToChange(booking);
+        await sendTooLateToChange(lead);
       }
       // Success path: cancelBooking already sends the cancellation confirmation.
     } else if (action === "rebook") {
-      if (booking.status === "confirmed" && isFreelyChangeable(booking.date, booking.slot)) {
-        await sendRebookLink(booking);
+      if (
+        rows.length === 1 &&
+        lead.status === "confirmed" &&
+        isFreelyChangeable(lead.date, lead.slot)
+      ) {
+        await sendRebookLink(lead);
       } else {
-        await sendTooLateToChange(booking);
+        await sendTooLateToChange(lead);
       }
     }
   }

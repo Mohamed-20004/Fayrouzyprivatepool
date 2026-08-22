@@ -19,6 +19,7 @@ type Labels = CalendarLabels &
     | "rebookDiffRefund"
     | "rebookDiffNone"
     | "rebookMoved"
+    | "rebookMultiNote"
     | "cancelBooking"
     | "cancelAsk"
     | "cancelDone"
@@ -31,12 +32,13 @@ type Labels = CalendarLabels &
 
 type BookingInfo = {
   reference: string;
-  date: string;
+  dates: string[];
   slot: "day" | "night";
   status: string;
   amount: number;
   currency: string;
   changeable: boolean;
+  rebookable: boolean;
   phone: string;
 };
 
@@ -59,9 +61,9 @@ export function RebookClient({
 }) {
   const [booking, setBooking] = useState<BookingInfo | null | "loading">("loading");
   const [selection, setSelection] = useState<{
-    date: string;
+    dates: string[];
     slot: "day" | "night";
-    price: number;
+    total: number;
   } | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -107,11 +109,14 @@ export function RebookClient({
     );
   }
 
-  const diff = selection ? selection.price - booking.amount : 0;
+  const diff = selection ? selection.total - booking.amount : 0;
 
   async function confirmMove() {
     if (!selection || booking === "loading" || !booking) return;
-    if (selection.date === booking.date && selection.slot === booking.slot) {
+    if (
+      selection.dates[0] === booking.dates[0] &&
+      selection.slot === booking.slot
+    ) {
       setMessage(labels.rebookSame);
       return;
     }
@@ -121,7 +126,11 @@ export function RebookClient({
       const res = await fetch(`/api/rebook/${token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "move", date: selection.date, slot: selection.slot }),
+        body: JSON.stringify({
+          action: "move",
+          date: selection.dates[0],
+          slot: selection.slot,
+        }),
       });
       const data = await res.json();
       if (res.ok && data.ok) {
@@ -170,7 +179,11 @@ export function RebookClient({
         <h3>{labels.rebookCurrent}</h3>
         <div className="summary-row">
           <span>{labels.bookDate}</span>
-          <span className="value">{booking.date}</span>
+          <span className="value" dir="ltr">
+            {booking.dates.length === 1
+              ? booking.dates[0]
+              : `${booking.dates[0]} → ${booking.dates[booking.dates.length - 1]} (×${booking.dates.length})`}
+          </span>
         </div>
         <div className="summary-row">
           <span>{labels.bookSlot}</span>
@@ -195,7 +208,16 @@ export function RebookClient({
         </button>
       </div>
 
-      <h3 style={{ textAlign: "center" }}>{labels.rebookPickNew}</h3>
+      {!booking.rebookable ? (
+        <div className="card">
+          <p>
+            {labels.rebookMultiNote} <strong dir="ltr">{booking.phone}</strong>
+          </p>
+        </div>
+      ) : (
+        <h3 style={{ textAlign: "center" }}>{labels.rebookPickNew}</h3>
+      )}
+      {booking.rebookable && (
       <Calendar
         locale={locale}
         labels={labels}
@@ -203,18 +225,19 @@ export function RebookClient({
         initialMonth={initialMonth}
         minMonth={minMonth}
         maxMonth={maxMonth}
-        onSelect={(date, slot, price) => {
-          setSelection({ date, slot, price });
+        onSelect={(dates, slot, total) => {
+          setSelection({ dates: [dates[0]], slot, total });
           setMessage(null);
         }}
         selected={selection}
       />
+      )}
 
-      {selection && (
+      {booking.rebookable && selection && (
         <div className="card">
           <div className="summary-row">
             <span>{labels.bookDate}</span>
-            <span className="value">{selection.date}</span>
+            <span className="value">{selection.dates[0]}</span>
           </div>
           <div className="summary-row">
             <span>{labels.bookSlot}</span>

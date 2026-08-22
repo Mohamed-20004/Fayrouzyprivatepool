@@ -94,49 +94,57 @@ const T = {
   },
 } as const;
 
-function confirmationBody(b: BookingRow, l: WaLocale, rebooked: boolean): string {
+/** "2026-09-14" for one day, "2026-09-14 → 2026-09-16 (×3)" for a run. */
+function datesLabel(rows: BookingRow[]): string {
+  if (rows.length === 1) return rows[0].date;
+  return `${rows[0].date} → ${rows[rows.length - 1].date} (×${rows.length})`;
+}
+
+function totalAmount(rows: BookingRow[]): number {
+  return rows.reduce((a, r) => a + r.amount, 0);
+}
+
+function confirmationBody(rows: BookingRow[], l: WaLocale, rebooked: boolean): string {
+  const b = rows[0];
   const lines = [
     `${rebooked ? T.rebookedTitle[l] : T.confirmedTitle[l]} — ${chaletConfig.name}`,
     ``,
-    `${T.reference[l]}: ${b.reference}`,
-    `${T.date[l]}: ${b.date}`,
+    `${T.reference[l]}: ${b.group_ref}`,
+    `${T.date[l]}: ${datesLabel(rows)}`,
     `${T.slot[l]}: ${slotLabel(l, b.slot)}`,
-    `${T.paid[l]}: ${b.amount} ${b.currency}`,
+    `${T.paid[l]}: ${totalAmount(rows)} ${b.currency}`,
     `${T.location[l]}: ${chaletConfig.location.mapsUrl}`,
   ];
   return lines.join("\n");
 }
 
 /**
- * Confirmation message. While the slot start is >7 days away it carries
- * interactive Rebook / Cancel buttons; inside the window it tells the guest
- * to call the chalet instead.
+ * Confirmation for a booking group. While the first date's start is >7 days
+ * away it carries interactive buttons — Cancel always, Rebook only for
+ * single-day bookings (multi-day changes go through the phone); inside the
+ * window it tells the guest to call the chalet instead.
  */
 export async function sendBookingConfirmation(
-  b: BookingRow,
+  rows: BookingRow[],
   opts: { rebooked?: boolean } = {}
 ): Promise<void> {
+  const b = rows[0];
   const l = loc(b.locale);
-  const body = confirmationBody(b, l, !!opts.rebooked);
+  const body = confirmationBody(rows, l, !!opts.rebooked);
 
   if (isFreelyChangeable(b.date, b.slot)) {
+    const buttons = [
+      ...(rows.length === 1
+        ? [{ type: "reply", reply: { id: `rebook|${b.group_ref}`, title: T.rebookBtn[l] } }]
+        : []),
+      { type: "reply", reply: { id: `cancel|${b.group_ref}`, title: T.cancelBtn[l] } },
+    ];
     await sendWhatsAppPayload(b.whatsapp, "booking_confirmation", {
       type: "interactive",
       interactive: {
         type: "button",
         body: { text: body },
-        action: {
-          buttons: [
-            {
-              type: "reply",
-              reply: { id: `rebook|${b.reference}`, title: T.rebookBtn[l] },
-            },
-            {
-              type: "reply",
-              reply: { id: `cancel|${b.reference}`, title: T.cancelBtn[l] },
-            },
-          ],
-        },
+        action: { buttons },
       },
     });
   } else {
@@ -148,15 +156,16 @@ export async function sendBookingConfirmation(
 }
 
 export async function sendCancellationConfirmation(
-  b: BookingRow,
+  rows: BookingRow[],
   refunded: boolean
 ): Promise<void> {
+  const b = rows[0];
   const l = loc(b.locale);
   const body = [
     `${T.cancelledTitle[l]} — ${chaletConfig.name}`,
     ``,
-    `${T.reference[l]}: ${b.reference}`,
-    `${T.date[l]}: ${b.date}`,
+    `${T.reference[l]}: ${b.group_ref}`,
+    `${T.date[l]}: ${datesLabel(rows)}`,
     `${T.slot[l]}: ${slotLabel(l, b.slot)}`,
     ``,
     refunded ? T.cancelledRefund[l] : T.cancelledNoRefund[l],
@@ -169,7 +178,7 @@ export async function sendCancellationConfirmation(
 
 export async function sendRebookLink(b: BookingRow): Promise<void> {
   const l = loc(b.locale);
-  const token = signRebookToken(b.reference);
+  const token = signRebookToken(b.group_ref);
   const url = `${baseUrl()}/${l}/rebook/${token}`;
   await sendWhatsAppPayload(b.whatsapp, "rebook_link", {
     type: "text",

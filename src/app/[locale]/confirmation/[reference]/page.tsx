@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
-import { getBookingByReference } from "@/lib/bookings";
+import { getBookingGroup } from "@/lib/bookings";
 import { releaseExpiredHolds } from "@/lib/availability";
 import { ConfirmationStatus } from "@/components/ConfirmationStatus";
 
@@ -18,8 +18,9 @@ export default async function ConfirmationPage({
   const dict = getDictionary(l);
 
   releaseExpiredHolds();
-  const booking = getBookingByReference(reference);
-  if (!booking) notFound();
+  const rows = getBookingGroup(reference);
+  if (rows.length === 0) notFound();
+  const lead = rows[0];
 
   return (
     <div className="container">
@@ -27,12 +28,12 @@ export default async function ConfirmationPage({
         locale={l}
         reference={reference}
         initial={{
-          reference: booking.reference,
-          date: booking.date,
-          slot: booking.slot,
-          status: booking.status,
-          amount: booking.amount,
-          currency: booking.currency,
+          reference: lead.group_ref,
+          dates: rows.map((r) => r.date),
+          slot: lead.slot,
+          status: lead.status,
+          amount: rows.reduce((a, r) => a + r.amount, 0),
+          currency: lead.currency,
         }}
         labels={dict}
       />

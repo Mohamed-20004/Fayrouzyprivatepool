@@ -35,10 +35,12 @@ interface CalendarProps {
   /** Earliest and latest navigable months, "YYYY-MM". */
   minMonth: string;
   maxMonth: string;
-  /** When set, slot clicks call this instead of navigating to the booking page. */
-  onSelect?: (date: string, slot: "day" | "night", price: number) => void;
-  /** Currently selected slot (summary / rebook flow highlight). */
-  selected?: { date: string; slot: "day" | "night" } | null;
+  /** Allow selecting a run of consecutive available dates (tap start, tap end). */
+  rangeSelect?: boolean;
+  /** Selection callback: one or more consecutive dates + their total price. */
+  onSelect?: (dates: string[], slot: "day" | "night", total: number) => void;
+  /** Currently selected dates (summary / rebook flow highlight). */
+  selected?: { dates: string[]; slot: "day" | "night" } | null;
 }
 
 function addMonths(month: string, delta: number): string {
@@ -61,6 +63,7 @@ export function Calendar({
   initialMonth,
   minMonth,
   maxMonth,
+  rangeSelect,
   onSelect,
   selected,
 }: CalendarProps) {
@@ -108,10 +111,42 @@ export function Calendar({
 
   const handlePick = useCallback(
     (date: string, price: number) => {
-      if (onSelect) onSelect(date, view, price);
-      else router.push(`/${locale}/book?date=${date}&slot=${view}`);
+      const monthDays = cache[month] ?? [];
+      const emit = (dates: string[]) => {
+        const total = dates.reduce((sum, dt) => {
+          const row = monthDays.find((x) => x.date === dt);
+          return sum + (row ? row[view].price : 0);
+        }, 0);
+        if (onSelect) onSelect(dates, view, total);
+        else router.push(`/${locale}/book?dates=${dates.join(",")}&slot=${view}`);
+      };
+
+      if (!rangeSelect) {
+        emit([date]);
+        return;
+      }
+      // Range logic: first tap anchors; second tap extends when every date
+      // between anchor and tap is available in this view. Anything else
+      // restarts the selection at the tapped date.
+      const current =
+        selected && selected.slot === view && selected.dates.length === 1
+          ? selected.dates[0]
+          : null;
+      if (!current || current === date) {
+        emit([date]);
+        return;
+      }
+      const [a, b] = date > current ? [current, date] : [date, current];
+      const run = monthDays.filter((x) => x.date >= a && x.date <= b);
+      const spanOk =
+        run.length > 0 &&
+        run[0].date === a &&
+        run[run.length - 1].date === b &&
+        run.every((x) => x[view].state === "available");
+      if (spanOk) emit(run.map((x) => x.date));
+      else emit([date]);
     },
-    [onSelect, router, locale, view]
+    [onSelect, router, locale, view, rangeSelect, selected, cache, month]
   );
 
   const fmtNum = useMemo(() => new Intl.NumberFormat(locale), [locale]);
@@ -176,7 +211,7 @@ export function Calendar({
           {days.map((d) => {
             const info = d[view];
             const isSelected =
-              selected && selected.date === d.date && selected.slot === view;
+              selected && selected.slot === view && selected.dates.includes(d.date);
             const bookable = info.state === "available";
             const stateLabel =
               info.state === "available"

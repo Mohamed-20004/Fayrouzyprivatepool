@@ -56,6 +56,13 @@ Two behaviour flags are **assumptions to confirm with the owner**:
   Bookings are stored as *(calendar date + slot type)* — times are display
   values from config, all in the chalet's timezone. No timestamps stored, so
   no timezone bugs.
+- **Multi-day bookings:** a booking is a group of 1–14 consecutive dates of
+  the same slot type, paid together under one reference (`group_ref`).
+  Cancellation refunds the whole group; online rescheduling is single-day
+  only (multi-day changes go through the phone).
+- **Flexible bookings:** guests can pick just a month + number of days and
+  the server assigns a random available run
+  (`POST /api/bookings` with `{ flexible: { month, count } }`).
 - **Availability rules** (all enforced server-side in
   [`src/lib/availability.ts`](src/lib/availability.ts)):
   1. Day and night slots on the same date are independent.

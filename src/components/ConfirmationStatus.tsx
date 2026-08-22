@@ -26,7 +26,7 @@ type Labels = Pick<
 
 type BookingInfo = {
   reference: string;
-  date: string;
+  dates: string[];
   slot: "day" | "night";
   status: "hold" | "confirmed" | "cancelled" | "expired";
   amount: number;
@@ -87,7 +87,11 @@ export function ConfirmationStatus({
       </div>
       <div className="summary-row">
         <span>{labels.bookDate}</span>
-        <span className="value">{booking.date}</span>
+        <span className="value" dir="ltr">
+          {booking.dates.length === 1
+            ? booking.dates[0]
+            : `${booking.dates[0]} → ${booking.dates[booking.dates.length - 1]} (×${booking.dates.length})`}
+        </span>
       </div>
       <div className="summary-row">
         <span>{labels.bookSlot}</span>

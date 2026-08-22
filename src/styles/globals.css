@@ -1016,6 +1016,52 @@ footer[id] {
   margin-top: var(--space-1);
 }
 
+.select {
+  width: 100%;
+  padding: 14px;
+  font-size: 1rem;
+  font-family: inherit;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--brand-light);
+}
+.select:focus {
+  outline: none;
+  border-color: var(--brand-accent);
+}
+.select option {
+  background: var(--brand-panel);
+  color: var(--brand-light);
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.stepper button {
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--color-border-accent);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--brand-accent);
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.stepper button:hover {
+  background: rgba(62, 200, 195, 0.1);
+}
+.stepper span {
+  min-width: 44px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
 .radio-row {
   display: flex;
   gap: var(--space-2);

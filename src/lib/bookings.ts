@@ -7,9 +7,10 @@ import {
   slotState,
 } from "@/lib/availability";
 import {
-  daysUntilSlotStart,
+  addDays,
   isFreelyChangeable,
   isValidDateStr,
+  todayInChaletTz,
 } from "@/lib/dates";
 import { priceFor } from "@/lib/pricing";
 import { newBookingReference } from "@/lib/reference";
@@ -22,14 +23,19 @@ import {
 } from "@/lib/whatsapp/messages";
 
 /**
- * Booking lifecycle. Every state change that touches slot occupancy runs in
- * a better-sqlite3 transaction; since better-sqlite3 is synchronous and
- * SQLite serializes writers, check-then-insert cannot race. A partial unique
- * index on (date, slot) over live bookings is the last line of defence.
+ * Booking lifecycle. A booking is a GROUP of one or more consecutive dates
+ * of the same slot type, paid together and sharing a guest-facing
+ * `group_ref`. Every state change that touches slot occupancy runs in a
+ * better-sqlite3 transaction; a partial unique index on (date, slot) over
+ * live rows is the last line of defence against double-booking.
  */
 
+export const MAX_GROUP_DAYS = 14;
+export const MAX_FLEX_DAYS = 7;
+
 export type CreateHoldInput = {
-  date: string;
+  /** Consecutive ascending dates, all booked as `slot`. */
+  dates: string[];
   slot: SlotType;
   guestName: string;
   whatsapp: string;
@@ -38,7 +44,7 @@ export type CreateHoldInput = {
 };
 
 export type CreateHoldResult =
-  | { ok: true; reference: string; checkoutUrl: string; amount: number }
+  | { ok: true; reference: string; checkoutUrl: string; amount: number; dates: string[] }
   | { ok: false; error: string };
 
 const E164_RE = /^\+[1-9]\d{6,14}$/;
@@ -55,13 +61,31 @@ export function baseUrl(): string {
   return (process.env.APP_BASE_URL || "http://localhost:3000").replace(/\/$/, "");
 }
 
-/** Step 1 of the flow: place a 10-minute hold and create a checkout session. */
+export function areConsecutiveDates(dates: string[]): boolean {
+  if (dates.length === 0) return false;
+  for (let i = 1; i < dates.length; i++) {
+    if (dates[i] !== addDays(dates[i - 1], 1)) return false;
+  }
+  return true;
+}
+
+class HoldError extends Error {}
+
+/** Place a 10-minute hold on 1..MAX_GROUP_DAYS consecutive slots + checkout. */
 export async function createBookingHold(
   input: CreateHoldInput
 ): Promise<CreateHoldResult> {
   const db = getDb();
 
-  if (!isValidDateStr(input.date)) return { ok: false, error: "invalid_date" };
+  if (
+    !Array.isArray(input.dates) ||
+    input.dates.length < 1 ||
+    input.dates.length > MAX_GROUP_DAYS ||
+    !input.dates.every(isValidDateStr) ||
+    !areConsecutiveDates(input.dates)
+  ) {
+    return { ok: false, error: "invalid_dates" };
+  }
   if (input.slot !== "day" && input.slot !== "night")
     return { ok: false, error: "invalid_slot" };
   const guestName = input.guestName.trim();
@@ -72,67 +96,78 @@ export async function createBookingHold(
   const provider = getProvider(input.provider);
   if (!provider) return { ok: false, error: "invalid_provider" };
 
-  const amount = priceFor(input.date, input.slot);
-  const reference = newBookingReference();
+  const amounts = input.dates.map((d) => priceFor(d, input.slot));
+  const total = amounts.reduce((a, b) => a + b, 0);
+  const groupRef = newBookingReference();
   const providerRef = crypto.randomUUID();
   const now = Date.now();
 
-  let bookingId: number;
+  let leadId: number;
   try {
-    bookingId = db.transaction(() => {
+    leadId = db.transaction(() => {
       releaseExpiredHolds();
-      if (!isSlotBookable(input.date, input.slot)) {
-        throw new HoldError("slot_unavailable");
+      for (const date of input.dates) {
+        if (!isSlotBookable(date, input.slot)) {
+          throw new HoldError("slot_unavailable");
+        }
       }
-      const res = db
-        .prepare(
-          `INSERT INTO bookings
-             (reference, date, slot, status, guest_name, whatsapp, locale,
-              amount, currency, payment_provider, hold_expires_at, created_at)
-           VALUES (?, ?, ?, 'hold', ?, ?, ?, ?, ?, ?, ?, ?)`
-        )
-        .run(
-          reference,
-          input.date,
+      const insert = db.prepare(
+        `INSERT INTO bookings
+           (reference, group_ref, date, slot, status, guest_name, whatsapp,
+            locale, amount, currency, payment_provider, hold_expires_at, created_at)
+         VALUES (?, ?, ?, ?, 'hold', ?, ?, ?, ?, ?, ?, ?, ?)`
+      );
+      let firstId = 0;
+      input.dates.forEach((date, i) => {
+        const rowRef = i === 0 ? groupRef : `${groupRef}~${i}`;
+        const res = insert.run(
+          rowRef,
+          groupRef,
+          date,
           input.slot,
           guestName,
           whatsapp,
           input.locale,
-          amount,
+          amounts[i],
           chaletConfig.currency,
           provider.id,
           now + chaletConfig.holdMinutes * 60_000,
           now
         );
-      const id = Number(res.lastInsertRowid);
+        if (i === 0) firstId = Number(res.lastInsertRowid);
+      });
       db.prepare(
         `INSERT INTO payments
            (booking_id, purpose, provider, provider_ref, amount, currency,
             status, created_at, updated_at)
          VALUES (?, 'booking', ?, ?, ?, ?, 'pending', ?, ?)`
-      ).run(id, provider.id, providerRef, amount, chaletConfig.currency, now, now);
-      return id;
+      ).run(firstId, provider.id, providerRef, total, chaletConfig.currency, now, now);
+      return firstId;
     })();
   } catch (e) {
     if (e instanceof HoldError) return { ok: false, error: e.message };
     throw e;
   }
+  void leadId;
 
+  const rangeLabel =
+    input.dates.length === 1
+      ? input.dates[0]
+      : `${input.dates[0]} → ${input.dates[input.dates.length - 1]}`;
   try {
     const session = await provider.createCheckout({
       providerRef,
-      amount,
+      amount: total,
       currency: chaletConfig.currency,
-      description: `${chaletConfig.name} — ${input.date} ${input.slot} (${reference})`,
-      returnUrl: `${baseUrl()}/${input.locale}/confirmation/${reference}`,
+      description: `${chaletConfig.name} — ${rangeLabel} ${input.slot} (${groupRef})`,
+      returnUrl: `${baseUrl()}/${input.locale}/confirmation/${groupRef}`,
       webhookUrl: `${baseUrl()}/api/payments/webhook/${provider.id}`,
     });
-    return { ok: true, reference, checkoutUrl: session.checkoutUrl, amount };
+    return { ok: true, reference: groupRef, checkoutUrl: session.checkoutUrl, amount: total, dates: input.dates };
   } catch {
-    // Checkout could not be created — release the hold immediately.
-    db.prepare(`UPDATE bookings SET status='expired' WHERE id=? AND status='hold'`).run(
-      bookingId
-    );
+    db.prepare(
+      `UPDATE bookings SET status='expired' WHERE group_ref=? AND status='hold'`
+    ).run(groupRef);
     db.prepare(
       `UPDATE payments SET status='failed', updated_at=? WHERE provider_ref=?`
     ).run(Date.now(), providerRef);
@@ -140,7 +175,60 @@ export async function createBookingHold(
   }
 }
 
-class HoldError extends Error {}
+/**
+ * Flexible booking: the guest picks only a month, slot type and a number of
+ * consecutive days — the chalet assigns a random available run in that
+ * month, then the normal hold flow takes over.
+ */
+export async function createFlexibleHold(
+  input: Omit<CreateHoldInput, "dates"> & { month: string; count: number }
+): Promise<CreateHoldResult> {
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(input.month))
+    return { ok: false, error: "invalid_month" };
+  const count = Math.floor(input.count);
+  if (!(count >= 1 && count <= MAX_FLEX_DAYS))
+    return { ok: false, error: "invalid_count" };
+
+  const [y, m] = input.month.split("-").map(Number);
+  const daysInMonth = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const today = todayInChaletTz();
+
+  releaseExpiredHolds();
+  const candidates: string[] = [];
+  for (let d = 1; d <= daysInMonth - (count - 1); d++) {
+    const start = `${input.month}-${String(d).padStart(2, "0")}`;
+    if (start < today) continue;
+    let ok = true;
+    for (let i = 0; i < count; i++) {
+      if (slotState(addDays(start, i), input.slot) !== "available") {
+        ok = false;
+        break;
+      }
+    }
+    if (ok) candidates.push(start);
+  }
+  if (candidates.length === 0) return { ok: false, error: "no_availability" };
+
+  // Try random starts until a hold sticks (a candidate can be taken between
+  // the scan and the hold — the transactional hold is still the authority).
+  const shuffled = candidates
+    .map((c) => ({ c, r: crypto.randomInt(1 << 30) }))
+    .sort((a, b) => a.r - b.r)
+    .map((x) => x.c);
+  for (const start of shuffled.slice(0, 5)) {
+    const dates = Array.from({ length: count }, (_, i) => addDays(start, i));
+    const result = await createBookingHold({ ...input, dates });
+    if (result.ok || result.error !== "slot_unavailable") return result;
+  }
+  return { ok: false, error: "no_availability" };
+}
+
+/** All rows of a booking group, ascending by date. */
+export function getBookingGroup(groupRef: string): BookingRow[] {
+  return getDb()
+    .prepare(`SELECT * FROM bookings WHERE group_ref=? ORDER BY date`)
+    .all(groupRef) as BookingRow[];
+}
 
 /**
  * Apply an authenticated payment webhook result. Idempotent: replayed
@@ -161,6 +249,9 @@ export async function applyPaymentResult(
     return;
   }
 
+  const lead = db
+    .prepare(`SELECT * FROM bookings WHERE id=?`)
+    .get(payment.booking_id) as BookingRow;
   const now = Date.now();
   type Outcome = "confirmed" | "failed" | "refund_needed";
 
@@ -170,57 +261,47 @@ export async function applyPaymentResult(
       now,
       payment.id
     );
-    const booking = db
-      .prepare(`SELECT * FROM bookings WHERE id=?`)
-      .get(payment.booking_id) as BookingRow;
+    const rows = db
+      .prepare(`SELECT * FROM bookings WHERE group_ref=? ORDER BY date`)
+      .all(lead.group_ref) as BookingRow[];
 
     if (status === "failed") {
-      if (booking.status === "hold") {
-        db.prepare(`UPDATE bookings SET status='expired' WHERE id=?`).run(booking.id);
-      }
+      db.prepare(
+        `UPDATE bookings SET status='expired' WHERE group_ref=? AND status='hold'`
+      ).run(lead.group_ref);
       return "failed";
     }
 
-    // Paid. Normal case: hold still active → confirm.
-    if (booking.status === "hold") {
-      const holdExpired =
-        booking.hold_expires_at !== null && booking.hold_expires_at < now;
-      if (holdExpired) {
-        // Late webhook: the hold lapsed. Re-check the slot (this row is the
-        // only 'hold' one for it thanks to the unique index; if it expired,
-        // someone else may have booked meanwhile).
-        db.prepare(`UPDATE bookings SET status='expired' WHERE id=?`).run(booking.id);
-        releaseExpiredHolds();
-        if (slotState(booking.date, booking.slot) === "available") {
-          db.prepare(
-            `UPDATE bookings SET status='confirmed', confirmed_at=?, payment_ref=? WHERE id=?`
-          ).run(now, providerRef, booking.id);
-          return "confirmed";
-        }
-        return "refund_needed";
-      }
+    if (rows.every((r) => r.status === "confirmed")) return "confirmed"; // duplicate
+    if (!rows.every((r) => r.status === "hold")) return "refund_needed"; // partially lost
+
+    const holdExpired = rows.some(
+      (r) => r.hold_expires_at !== null && r.hold_expires_at < now
+    );
+    if (holdExpired) {
+      // Late webhook: release the lapsed holds, then re-check every date.
       db.prepare(
-        `UPDATE bookings SET status='confirmed', confirmed_at=?, payment_ref=? WHERE id=?`
-      ).run(now, providerRef, booking.id);
-      return "confirmed";
+        `UPDATE bookings SET status='expired' WHERE group_ref=?`
+      ).run(lead.group_ref);
+      releaseExpiredHolds();
+      for (const r of rows) {
+        if (slotState(r.date, r.slot) !== "available") return "refund_needed";
+      }
     }
-    if (booking.status === "confirmed") {
-      return "confirmed"; // duplicate webhook
-    }
-    return "refund_needed"; // paid a slot that was lost
+    db.prepare(
+      `UPDATE bookings SET status='confirmed', confirmed_at=?, payment_ref=? WHERE group_ref=?`
+    ).run(now, providerRef, lead.group_ref);
+    return "confirmed";
   })();
 
-  const booking = db
-    .prepare(`SELECT * FROM bookings WHERE id=?`)
-    .get(payment.booking_id) as BookingRow;
-
+  const rows = getBookingGroup(lead.group_ref);
   if (outcome === "confirmed") {
-    await sendBookingConfirmation(booking);
+    await sendBookingConfirmation(rows);
   } else if (outcome === "refund_needed") {
     await refundPayment(payment, payment.amount);
-    await sendPaymentFailed(booking, "slot_lost");
+    await sendPaymentFailed(rows[0], "slot_lost");
   } else {
-    await sendPaymentFailed(booking, "payment_failed");
+    await sendPaymentFailed(rows[0], "payment_failed");
   }
 }
 
@@ -248,39 +329,42 @@ export type CancelResult =
   | { ok: false; error: "not_found" | "not_cancellable" | "too_late" };
 
 /**
- * Cancel a confirmed booking. Only allowed while the slot start is ≥7 days
- * away (enforced here regardless of what UI/button triggered it); inside
- * that window guests must call the chalet. Frees the slot and refunds all
- * captured payments to the original method.
+ * Cancel a confirmed booking group. Only allowed while the FIRST date's slot
+ * start is ≥7 days away (enforced here regardless of what UI/button
+ * triggered it). Frees every slot and refunds all captured payments.
  */
-export async function cancelBooking(reference: string): Promise<CancelResult> {
+export async function cancelBooking(groupRef: string): Promise<CancelResult> {
   const db = getDb();
-  const booking = db
-    .prepare(`SELECT * FROM bookings WHERE reference=?`)
-    .get(reference) as BookingRow | undefined;
-  if (!booking) return { ok: false, error: "not_found" };
-  if (booking.status !== "confirmed") return { ok: false, error: "not_cancellable" };
-  if (!isFreelyChangeable(booking.date, booking.slot))
+  const rows = getBookingGroup(groupRef);
+  if (rows.length === 0) return { ok: false, error: "not_found" };
+  if (!rows.every((r) => r.status === "confirmed"))
+    return { ok: false, error: "not_cancellable" };
+  if (!isFreelyChangeable(rows[0].date, rows[0].slot))
     return { ok: false, error: "too_late" };
 
   const changed = db
     .prepare(
-      `UPDATE bookings SET status='cancelled', cancelled_at=? WHERE id=? AND status='confirmed'`
+      `UPDATE bookings SET status='cancelled', cancelled_at=? WHERE group_ref=? AND status='confirmed'`
     )
-    .run(Date.now(), booking.id).changes;
+    .run(Date.now(), groupRef).changes;
   if (!changed) return { ok: false, error: "not_cancellable" };
 
-  // Refund every captured payment tied to this booking (initial + any rebook difference).
+  const ids = rows.map((r) => r.id);
   const paid = db
-    .prepare(`SELECT * FROM payments WHERE booking_id=? AND status='paid'`)
-    .all(booking.id) as PaymentRow[];
+    .prepare(
+      `SELECT * FROM payments WHERE booking_id IN (${ids.map(() => "?").join(",")}) AND status='paid'`
+    )
+    .all(...ids) as PaymentRow[];
   let refunded = paid.length > 0;
   for (const p of paid) {
     const ok = await refundPayment(p, p.amount);
     refunded = refunded && ok;
   }
 
-  await sendCancellationConfirmation({ ...booking, status: "cancelled" }, refunded);
+  await sendCancellationConfirmation(
+    rows.map((r) => ({ ...r, status: "cancelled" as const })),
+    refunded
+  );
   return { ok: true, refunded };
 }
 
@@ -292,6 +376,7 @@ export type RebookResult =
       error:
         | "not_found"
         | "not_confirmed"
+        | "not_rebookable"
         | "too_late"
         | "slot_unavailable"
         | "same_slot"
@@ -300,13 +385,13 @@ export type RebookResult =
     };
 
 /**
- * Move a confirmed booking to a new available slot.
+ * Move a single-day confirmed booking to a new available slot. Multi-day
+ * groups are not reschedulable online (the guest calls the chalet).
  * Cheaper/equal slot → move immediately, refund the difference (per config).
- * Dearer slot → hold the new slot and require payment of the difference;
- * the move is applied when that payment's webhook lands.
+ * Dearer slot → hold the new slot, require the difference via checkout.
  */
 export async function rebookBooking(
-  reference: string,
+  groupRef: string,
   newDate: string,
   newSlot: SlotType
 ): Promise<RebookResult> {
@@ -314,10 +399,10 @@ export async function rebookBooking(
   if (!isValidDateStr(newDate) || (newSlot !== "day" && newSlot !== "night"))
     return { ok: false, error: "invalid_date" };
 
-  const booking = db
-    .prepare(`SELECT * FROM bookings WHERE reference=?`)
-    .get(reference) as BookingRow | undefined;
-  if (!booking) return { ok: false, error: "not_found" };
+  const rows = getBookingGroup(groupRef);
+  if (rows.length === 0) return { ok: false, error: "not_found" };
+  if (rows.length > 1) return { ok: false, error: "not_rebookable" };
+  const booking = rows[0];
   if (booking.status !== "confirmed") return { ok: false, error: "not_confirmed" };
   if (!isFreelyChangeable(booking.date, booking.slot))
     return { ok: false, error: "too_late" };
@@ -328,7 +413,6 @@ export async function rebookBooking(
   const difference = newPrice - booking.amount;
 
   if (difference <= 0) {
-    // Move now, refund the difference if configured to.
     try {
       db.transaction(() => {
         releaseExpiredHolds();
@@ -362,17 +446,14 @@ export async function rebookBooking(
       }
     }
 
-    const updated = db
-      .prepare(`SELECT * FROM bookings WHERE id=?`)
-      .get(booking.id) as BookingRow;
-    await sendBookingConfirmation(updated, { rebooked: true });
-    return { ok: true, kind: "moved", reference, refundedDifference };
+    await sendBookingConfirmation(getBookingGroup(groupRef), { rebooked: true });
+    return { ok: true, kind: "moved", reference: groupRef, refundedDifference };
   }
 
   // Dearer slot: hold it under a temporary row and charge the difference.
   const provider = getProvider(booking.payment_provider || "whish")!;
   const providerRef = crypto.randomUUID();
-  const tempReference = `${reference}~R${Date.now().toString(36).toUpperCase()}`;
+  const tempReference = `${groupRef}~R${Date.now().toString(36).toUpperCase()}`;
   const now = Date.now();
 
   try {
@@ -383,11 +464,12 @@ export async function rebookBooking(
       const res = db
         .prepare(
           `INSERT INTO bookings
-             (reference, date, slot, status, guest_name, whatsapp, locale,
-              amount, currency, payment_provider, hold_expires_at, created_at)
-           VALUES (?, ?, ?, 'hold', ?, ?, ?, ?, ?, ?, ?, ?)`
+             (reference, group_ref, date, slot, status, guest_name, whatsapp,
+              locale, amount, currency, payment_provider, hold_expires_at, created_at)
+           VALUES (?, ?, ?, ?, 'hold', ?, ?, ?, ?, ?, ?, ?, ?)`
         )
         .run(
+          tempReference,
           tempReference,
           newDate,
           newSlot,
@@ -411,7 +493,7 @@ export async function rebookBooking(
         providerRef,
         difference,
         booking.currency,
-        JSON.stringify({ originalBookingId: booking.id, originalReference: reference }),
+        JSON.stringify({ originalBookingId: booking.id, originalReference: groupRef }),
         now,
         now
       );
@@ -426,8 +508,8 @@ export async function rebookBooking(
       providerRef,
       amount: difference,
       currency: booking.currency,
-      description: `${chaletConfig.name} — rebook ${reference} to ${newDate} ${newSlot}`,
-      returnUrl: `${baseUrl()}/${booking.locale}/confirmation/${reference}`,
+      description: `${chaletConfig.name} — rebook ${groupRef} to ${newDate} ${newSlot}`,
+      returnUrl: `${baseUrl()}/${booking.locale}/confirmation/${groupRef}`,
       webhookUrl: `${baseUrl()}/api/payments/webhook/${provider.id}`,
     });
     return { ok: true, kind: "payment_required", checkoutUrl: session.checkoutUrl, difference };
@@ -480,16 +562,16 @@ async function applyRebookPaymentResult(
       .prepare(`SELECT * FROM bookings WHERE id=?`)
       .get(meta.originalBookingId) as BookingRow | undefined;
     if (!original || original.status !== "confirmed" || newRow.status !== "hold") {
-      // Original was cancelled meanwhile, or the hold lapsed and was lost.
       return;
     }
     // Retire the original, promote the new row under the guest's reference.
+    const oldRef = `${original.group_ref}~OLD${original.id}`;
     db.prepare(
-      `UPDATE bookings SET status='cancelled', cancelled_at=?, reference=? WHERE id=?`
-    ).run(now, `${original.reference}~OLD${original.id}`, original.id);
+      `UPDATE bookings SET status='cancelled', cancelled_at=?, reference=?, group_ref=? WHERE id=?`
+    ).run(now, oldRef, oldRef, original.id);
     db.prepare(
-      `UPDATE bookings SET status='confirmed', confirmed_at=?, reference=?, payment_ref=? WHERE id=?`
-    ).run(now, meta.originalReference, payment.provider_ref, newRow.id);
+      `UPDATE bookings SET status='confirmed', confirmed_at=?, reference=?, group_ref=?, payment_ref=? WHERE id=?`
+    ).run(now, meta.originalReference, meta.originalReference, payment.provider_ref, newRow.id);
     // Move the original captured payment onto the new row so a later
     // cancellation refunds the full amount (initial + difference).
     db.prepare(
@@ -499,18 +581,10 @@ async function applyRebookPaymentResult(
   })();
 
   if (applied) {
-    const updated = db
-      .prepare(`SELECT * FROM bookings WHERE id=?`)
-      .get(payment.booking_id) as BookingRow;
-    await sendBookingConfirmation(updated, { rebooked: true });
+    await sendBookingConfirmation(getBookingGroup(meta.originalReference!), {
+      rebooked: true,
+    });
   } else {
-    // Paid but the move could not be applied — refund the difference.
     await refundPayment(payment, payment.amount);
   }
-}
-
-export function getBookingByReference(reference: string): BookingRow | undefined {
-  return getDb()
-    .prepare(`SELECT * FROM bookings WHERE reference=?`)
-    .get(reference) as BookingRow | undefined;
 }
