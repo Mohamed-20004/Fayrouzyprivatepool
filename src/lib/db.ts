@@ -75,9 +75,9 @@ function migrate(db: Database.Database) {
       updated_at   INTEGER NOT NULL
     );
 
-    -- Guest-submitted reviews. Not shown on the site automatically — the
-    -- owner reads them (WhatsApp notification + admin endpoint) and promotes
-    -- the good ones into chalet.config.ts by hand.
+    -- Guest-submitted reviews. Internal only: backs the hourly spam throttle
+    -- and serves as a backup archive — the owner reads reviews in their email
+    -- inbox and promotes the good ones into chalet.config.ts by hand.
     CREATE TABLE IF NOT EXISTS reviews (
       id         INTEGER PRIMARY KEY AUTOINCREMENT,
       name       TEXT NOT NULL,
@@ -150,15 +150,6 @@ export type BookingRow = {
   created_at: number;
   confirmed_at: number | null;
   cancelled_at: number | null;
-};
-
-export type ReviewRow = {
-  id: number;
-  name: string;
-  rating: number;
-  message: string;
-  locale: string;
-  created_at: number;
 };
 
 export type PaymentRow = {

@@ -149,32 +149,19 @@ guest used on the site.
 
 The reviews section has a "Share your experience" form (name, 1–5 stars,
 message). Submissions are **private** — nothing is auto-published. Each one
-goes to three places the owner can see:
+is **emailed to `chaletConfig.reviewsEmail`** (`fayrouzy.pool@gmail.com`);
+that inbox is the owner's review feed.
 
-1. **Email** — sent to `chaletConfig.reviewsEmail`
-   (`fayrouzy.pool@gmail.com`) via SMTP. Set the `SMTP_*` env vars to go
-   live — for Gmail, sign in as that account, create an **App Password**
-   (Google Account → Security → 2-Step Verification → App passwords) and
-   set `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=465`,
-   `SMTP_USER=fayrouzy.pool@gmail.com`, `SMTP_PASS=<app password>`. With no
-   credentials the email lands in the `email_outbox` table (mock mode).
-2. **WhatsApp** — forwarded as a message to the chalet's own number
-   (`chaletConfig.phone`) via the same Cloud API client as booking
-   confirmations (in mock mode it lands in `whatsapp_outbox` instead).
-3. **Database** — stored in the `reviews` table, readable via the protected
-   endpoint (same `ADMIN_SECRET` scheme as date-blocking):
-
-```bash
-curl https://<domain>/api/admin/reviews -H "x-admin-secret: $ADMIN_SECRET"
-
-curl -X DELETE https://<domain>/api/admin/reviews \
-  -H "x-admin-secret: $ADMIN_SECRET" -H "Content-Type: application/json" \
-  -d '{"id":3}'          # remove spam / handled reviews
-```
+To go live, set the `SMTP_*` env vars — for Gmail, sign in as that account,
+create an **App Password** (Google Account → Security → 2-Step Verification
+→ App passwords) and set `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=465`,
+`SMTP_USER=fayrouzy.pool@gmail.com`, `SMTP_PASS=<app password>`. With no
+credentials the email lands in the `email_outbox` table instead (mock mode).
 
 The cards shown on the site stay curated: pick the best submissions and add
 them to `reviews.items` in `chalet.config.ts`. Spam protection: a honeypot
-field plus a site-wide cap of 10 submissions/hour.
+field plus a site-wide cap of 10 submissions/hour (backed by an internal
+`reviews` table, which also serves as a backup archive of every submission).
 
 ## Blocking dates (owner)
 
