@@ -77,11 +77,10 @@ export async function POST(
   }
 
   if (body.action === "move") {
-    const result = await rebookBooking(
-      groupRef,
-      String(body.date ?? ""),
-      body.slot as "day" | "night"
-    );
+    if (body.slot !== "night") {
+      return NextResponse.json({ error: "invalid_slot" }, { status: 400 });
+    }
+    const result = await rebookBooking(groupRef, String(body.date ?? ""), "night");
     if (!result.ok) {
       const status =
         result.error === "too_late" || result.error === "not_rebookable"

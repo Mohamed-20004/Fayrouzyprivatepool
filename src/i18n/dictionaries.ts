@@ -44,7 +44,7 @@ const en = {
   fromWord: "From",
   perNight: "a night",
   instantConfirmation: "Instant confirmation",
-  calendarHint: "Pick a date, then choose a day or night slot.",
+  calendarHint: "Pick your night on the calendar — or several in a row.",
   daySlot: "Day",
   nightSlot: "Night",
   nextDayShort: "next day",
@@ -63,9 +63,10 @@ const en = {
   flexMonthLabel: "Month",
   flexCountDays: "Number of days",
   flexCountNights: "Number of nights",
-  flexNote: "We'll assign you a random available date in the month you choose.",
+  flexNote: "We picked these available dates for you — happy with them? Proceed to payment.",
   flexPriceNote: "Your exact dates and total appear at payment.",
-  rangeHint: "→ Tap a start date, then an end date to book several days in a row.",
+  flexShuffle: "Try different dates",
+  rangeHint: "→ Tap a start date, then an end date to book several nights in a row.",
   errNoAvailability:
     "No availability matches that selection — try another month or fewer days.",
   rebookMultiNote: "Multi-day bookings can be rescheduled by phone:",
@@ -163,7 +164,7 @@ const en = {
   getInTouch: "Get in touch",
   followAlong: "Follow along",
   footerBlurb:
-    "A private pool chalet in the Nabatieh region of South Lebanon. Available for day and night stays throughout the season.",
+    "A private pool chalet in the Nabatieh region of South Lebanon. Available for night stays throughout the season.",
   rightsReserved: "All rights reserved.",
 
   langSwitch: "Language",
@@ -208,7 +209,7 @@ const ar: Dictionary = {
   fromWord: "ابتداءً من",
   perNight: "لليلة الواحدة",
   instantConfirmation: "تأكيد فوري",
-  calendarHint: "اختر التاريخ ثم اختر الفترة النهارية أو الليلية.",
+  calendarHint: "اختر ليلتك من التقويم — أو عدة ليالٍ متتالية.",
   daySlot: "نهاري",
   nightSlot: "ليلي",
   nextDayShort: "اليوم التالي",
@@ -227,9 +228,10 @@ const ar: Dictionary = {
   flexMonthLabel: "الشهر",
   flexCountDays: "عدد الأيام",
   flexCountNights: "عدد الليالي",
-  flexNote: "سنحدد لك تاريخاً متاحاً عشوائياً في الشهر الذي تختاره.",
+  flexNote: "اخترنا لك هذه التواريخ المتاحة — هل تناسبك؟ تابع إلى الدفع.",
   flexPriceNote: "تظهر التواريخ والمبلغ النهائي عند الدفع.",
-  rangeHint: "← انقر تاريخ البداية ثم تاريخ النهاية لحجز عدة أيام متتالية.",
+  flexShuffle: "جرّب تواريخ أخرى",
+  rangeHint: "← انقر تاريخ البداية ثم تاريخ النهاية لحجز عدة ليالٍ متتالية.",
   errNoAvailability: "لا يوجد توفر يطابق اختيارك — جرّب شهراً آخر أو أياماً أقل.",
   rebookMultiNote: "الحجوزات المتعددة الأيام يمكن تعديل موعدها عبر الهاتف:",
   proceedPayment: "المتابعة إلى الدفع",
@@ -317,7 +319,7 @@ const ar: Dictionary = {
   getInTouch: "تواصل معنا",
   followAlong: "تابعنا",
   footerBlurb:
-    "شاليه بمسبح خاص في منطقة النبطية في الجنوب اللبناني. متاح للإقامات النهارية والليلية طوال الموسم.",
+    "شاليه بمسبح خاص في منطقة النبطية في الجنوب اللبناني. متاح للإقامات الليلية طوال الموسم.",
   rightsReserved: "جميع الحقوق محفوظة.",
 
   langSwitch: "اللغة",
@@ -360,7 +362,7 @@ const fr: Dictionary = {
   fromWord: "À partir de",
   perNight: "par nuit",
   instantConfirmation: "Confirmation instantanée",
-  calendarHint: "Choisissez une date, puis un créneau journée ou nuitée.",
+  calendarHint: "Choisissez votre nuitée sur le calendrier — ou plusieurs d'affilée.",
   daySlot: "Journée",
   nightSlot: "Nuitée",
   nextDayShort: "lendemain",
@@ -379,10 +381,11 @@ const fr: Dictionary = {
   flexMonthLabel: "Mois",
   flexCountDays: "Nombre de jours",
   flexCountNights: "Nombre de nuits",
-  flexNote: "Nous vous attribuons une date disponible au hasard dans le mois choisi.",
+  flexNote: "Nous avons choisi ces dates disponibles pour vous — elles vous conviennent ? Passez au paiement.",
   flexPriceNote: "Vos dates exactes et le total s'affichent au paiement.",
+  flexShuffle: "Essayer d'autres dates",
   rangeHint:
-    "→ Touchez une date de début puis une date de fin pour réserver plusieurs jours d'affilée.",
+    "→ Touchez une date de début puis une date de fin pour réserver plusieurs nuits d'affilée.",
   errNoAvailability:
     "Aucune disponibilité pour cette sélection — essayez un autre mois ou moins de jours.",
   rebookMultiNote: "Les réservations de plusieurs jours se reprogramment par téléphone :",
@@ -475,7 +478,7 @@ const fr: Dictionary = {
   getInTouch: "Nous contacter",
   followAlong: "Suivez-nous",
   footerBlurb:
-    "Un chalet avec piscine privée dans la région de Nabatieh, au Sud-Liban. Disponible en journée et en nuitée pendant toute la saison.",
+    "Un chalet avec piscine privée dans la région de Nabatieh, au Sud-Liban. Disponible en nuitée pendant toute la saison.",
   rightsReserved: "Tous droits réservés.",
 
   langSwitch: "Langue",

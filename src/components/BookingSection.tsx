@@ -1,12 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { chaletConfig } from "@/config/chalet.config";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { Calendar, type CalendarLabels } from "@/components/Calendar";
-import { IconMoon, IconSun } from "@/components/Icons";
 
 type Labels = CalendarLabels &
   Pick<
@@ -22,18 +21,21 @@ type Labels = CalendarLabels &
     | "modeSpecific"
     | "modeFlexible"
     | "flexMonthLabel"
-    | "flexCountDays"
     | "flexCountNights"
     | "flexNote"
-    | "flexPriceNote"
+    | "flexShuffle"
     | "rangeHint"
-    | "fromWord"
+    | "errNoAvailability"
+    | "loading"
   > & { included: string[] };
 
+type FlexPick = { dates: string[]; total: number } | "none" | "loading";
+
 /**
- * Booking layout: calendar (with consecutive-range selection) or the
- * Flexible panel — guests who don't care about exact dates pick a month and
- * a number of days, and the chalet assigns a random available run.
+ * Night-booking layout: calendar with consecutive-range selection, or the
+ * Flexible panel — guests pick a month and a number of nights, see exactly
+ * which dates were assigned (with a re-roll button), then book those dates
+ * through the normal flow.
  */
 export function BookingSection({
   locale,
@@ -58,8 +60,29 @@ export function BookingSection({
     total: number;
   } | null>(null);
   const [flexMonth, setFlexMonth] = useState(initialMonth);
-  const [flexSlot, setFlexSlot] = useState<"day" | "night">("night");
   const [flexCount, setFlexCount] = useState(1);
+  const [flexPick, setFlexPick] = useState<FlexPick>("loading");
+  const [shuffle, setShuffle] = useState(0);
+
+  // Fetch a random suggestion whenever the flexible inputs (or re-roll) change.
+  useEffect(() => {
+    if (mode !== "flexible") return;
+    let cancelled = false;
+    setFlexPick("loading");
+    fetch(`/api/flexible?month=${flexMonth}&count=${flexCount}`)
+      .then(async (r) =>
+        r.ok ? ((await r.json()) as { dates: string[]; total: number }) : "none"
+      )
+      .then((data) => {
+        if (!cancelled) setFlexPick(data === "none" ? "none" : data);
+      })
+      .catch(() => {
+        if (!cancelled) setFlexPick("none");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [mode, flexMonth, flexCount, shuffle]);
 
   // Months from now to the horizon that fall inside the season.
   const seasonMonths = useMemo(() => {
@@ -86,34 +109,30 @@ export function BookingSection({
     );
   };
 
-  const slotCfg = selection ? chaletConfig.slots[selection.slot] : null;
-  const slotTimes = slotCfg
-    ? slotCfg.endsNextDay
-      ? `${slotCfg.start} → ${slotCfg.end} (${labels.nextDayShort})`
-      : `${slotCfg.start} → ${slotCfg.end}`
-    : null;
+  const slotCfg = chaletConfig.slots.night;
+  const slotTimes = `${slotCfg.start} → ${slotCfg.end} (${labels.nextDayShort})`;
 
-  const datesValue = selection
-    ? selection.dates.length === 1
-      ? selection.dates[0]
-      : `${selection.dates[0]} → ${selection.dates[selection.dates.length - 1]} (×${selection.dates.length})`
-    : "—";
+  const rangeLabel = (dates: string[]) =>
+    dates.length === 1
+      ? dates[0]
+      : `${dates[0]} → ${dates[dates.length - 1]} (×${dates.length})`;
 
-  const flexFromPrice =
-    flexSlot === "night"
-      ? Math.min(chaletConfig.prices.nightWeekday, chaletConfig.prices.nightWeekend)
-      : Math.min(chaletConfig.prices.dayWeekday, chaletConfig.prices.dayWeekend);
+  const activeDates =
+    mode === "flexible"
+      ? typeof flexPick === "object"
+        ? flexPick.dates
+        : null
+      : (selection?.dates ?? null);
+  const activeTotal =
+    mode === "flexible"
+      ? typeof flexPick === "object"
+        ? flexPick.total
+        : null
+      : (selection?.total ?? null);
 
   function proceed() {
-    if (mode === "flexible") {
-      router.push(
-        `/${locale}/book?flexible=1&month=${flexMonth}&count=${flexCount}&slot=${flexSlot}`
-      );
-    } else if (selection) {
-      router.push(
-        `/${locale}/book?dates=${selection.dates.join(",")}&slot=${selection.slot}`
-      );
-    }
+    if (!activeDates) return;
+    router.push(`/${locale}/book?dates=${activeDates.join(",")}&slot=night`);
   }
 
   return (
@@ -155,23 +174,6 @@ export function BookingSection({
           </div>
         ) : (
           <div className="panel flex-panel">
-            <div className="cal-toggle" style={{ marginBottom: "var(--space-4)" }}>
-              <button
-                type="button"
-                className={flexSlot === "day" ? "active" : ""}
-                onClick={() => setFlexSlot("day")}
-              >
-                <IconSun size={15} /> {labels.daySlot}
-              </button>
-              <button
-                type="button"
-                className={flexSlot === "night" ? "active" : ""}
-                onClick={() => setFlexSlot("night")}
-              >
-                <IconMoon size={15} /> {labels.nightSlot}
-              </button>
-            </div>
-
             <div className="field">
               <label htmlFor="flex-month">{labels.flexMonthLabel}</label>
               <select
@@ -189,9 +191,7 @@ export function BookingSection({
             </div>
 
             <div className="field">
-              <label>
-                {flexSlot === "day" ? labels.flexCountDays : labels.flexCountNights}
-              </label>
+              <label>{labels.flexCountNights}</label>
               <div className="stepper">
                 <button
                   type="button"
@@ -211,66 +211,62 @@ export function BookingSection({
               </div>
             </div>
 
-            <p className="note" style={{ margin: "var(--space-3) 0 0" }}>
-              {labels.flexNote} {labels.flexPriceNote}
-            </p>
+            {flexPick === "loading" ? (
+              <p style={{ margin: "var(--space-3) 0 0" }}>
+                <span className="spinner" /> {labels.loading}
+              </p>
+            ) : flexPick === "none" ? (
+              <p className="error" style={{ margin: "var(--space-3) 0 0" }}>
+                {labels.errNoAvailability}
+              </p>
+            ) : (
+              <>
+                <p className="note" style={{ margin: "var(--space-3) 0" }}>
+                  {labels.flexNote}
+                </p>
+                <div className="summary-row">
+                  <span>{labels.bookDate}</span>
+                  <span className="value" dir="ltr">
+                    {rangeLabel(flexPick.dates)}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ width: "100%", marginTop: "var(--space-3)" }}
+                  onClick={() => setShuffle((n) => n + 1)}
+                >
+                  ↻ {labels.flexShuffle}
+                </button>
+              </>
+            )}
           </div>
         )}
 
         <div>
           <div className="panel">
             <h3>{labels.summaryTitle}</h3>
-            {mode === "flexible" ? (
-              <>
-                <div className="summary-row">
-                  <span>{labels.flexMonthLabel}</span>
-                  <span className="value">{monthName(flexMonth)}</span>
-                </div>
-                <div className="summary-row">
-                  <span>{labels.bookSlot}</span>
-                  <span className="value">
-                    {flexSlot === "day" ? labels.daySlot : labels.nightSlot} × {flexCount}
-                  </span>
-                </div>
-                <div className="summary-row">
-                  <span>{labels.bookPrice}</span>
-                  <span className="value price-big">
-                    {labels.fromWord} {flexFromPrice * flexCount} {currency}
-                  </span>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="summary-row">
-                  <span>{labels.bookDate}</span>
-                  <span className="value" dir="ltr">
-                    {datesValue}
-                  </span>
-                </div>
-                <div className="summary-row">
-                  <span>{labels.bookSlot}</span>
-                  <span className="value">
-                    {selection
-                      ? `${selection.slot === "day" ? labels.daySlot : labels.nightSlot}`
-                      : "—"}
-                    {slotTimes && (
-                      <>
-                        {" "}
-                        <span dir="ltr" style={{ color: "var(--color-text-muted)" }}>
-                          {slotTimes}
-                        </span>
-                      </>
-                    )}
-                  </span>
-                </div>
-                <div className="summary-row">
-                  <span>{labels.bookPrice}</span>
-                  <span className="value price-big">
-                    {selection ? `${selection.total} ${currency}` : "—"}
-                  </span>
-                </div>
-              </>
-            )}
+            <div className="summary-row">
+              <span>{labels.bookDate}</span>
+              <span className="value" dir="ltr">
+                {activeDates ? rangeLabel(activeDates) : "—"}
+              </span>
+            </div>
+            <div className="summary-row">
+              <span>{labels.bookSlot}</span>
+              <span className="value">
+                {labels.nightSlot}{" "}
+                <span dir="ltr" style={{ color: "var(--color-text-muted)" }}>
+                  {slotTimes}
+                </span>
+              </span>
+            </div>
+            <div className="summary-row">
+              <span>{labels.bookPrice}</span>
+              <span className="value price-big">
+                {activeTotal !== null ? `${activeTotal} ${currency}` : "—"}
+              </span>
+            </div>
             {mode === "dates" && !selection && (
               <p className="summary-hint">{labels.selectSlotHint}</p>
             )}
@@ -278,7 +274,7 @@ export function BookingSection({
               type="button"
               className="btn"
               style={{ width: "100%", marginTop: "var(--space-3)" }}
-              disabled={mode === "dates" && !selection}
+              disabled={!activeDates}
               onClick={proceed}
             >
               {labels.proceedPayment}

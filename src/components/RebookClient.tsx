@@ -187,9 +187,7 @@ export function RebookClient({
         </div>
         <div className="summary-row">
           <span>{labels.bookSlot}</span>
-          <span className="value">
-            {booking.slot === "day" ? labels.daySlot : labels.nightSlot}
-          </span>
+          <span className="value">{labels.nightSlot}</span>
         </div>
         <div className="summary-row">
           <span>{labels.confAmount}</span>
@@ -241,9 +239,7 @@ export function RebookClient({
           </div>
           <div className="summary-row">
             <span>{labels.bookSlot}</span>
-            <span className="value">
-              {selection.slot === "day" ? labels.daySlot : labels.nightSlot}
-            </span>
+            <span className="value">{labels.nightSlot}</span>
           </div>
           <div className="summary-row">
             <span>

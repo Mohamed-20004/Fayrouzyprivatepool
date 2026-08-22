@@ -27,10 +27,8 @@ type Labels = Pick<
   | "depositNote"
 >;
 
-/** What is being booked: explicit consecutive dates, or a flexible request. */
-export type BookingRequest =
-  | { kind: "dates"; dates: string[]; slot: "day" | "night" }
-  | { kind: "flexible"; month: string; count: number; slot: "day" | "night" };
+/** What is being booked: explicit consecutive dates (nights only). */
+export type BookingRequest = { kind: "dates"; dates: string[]; slot: "night" };
 
 const E164_RE = /^\+[1-9][\d\s\-()]{6,20}$/;
 
@@ -60,13 +58,7 @@ export function BookingForm({
 
     setSubmitting(true);
     try {
-      const payload =
-        booking.kind === "dates"
-          ? { dates: booking.dates, slot: booking.slot }
-          : {
-              flexible: { month: booking.month, count: booking.count },
-              slot: booking.slot,
-            };
+      const payload = { dates: booking.dates, slot: booking.slot };
       const res = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

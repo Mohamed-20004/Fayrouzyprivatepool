@@ -47,7 +47,7 @@ export default async function LocaleLayout({
   const dict = getDictionary(l);
   const { contact, location, slots } = chaletConfig;
 
-  const slotTimesLine = `${dict.daySlot} ${slots.day.start}–${slots.day.end} · ${dict.nightSlot} ${slots.night.start}–${slots.night.end}`;
+  const slotTimesLine = `${dict.nightSlot} ${slots.night.start}–${slots.night.end}`;
 
   return (
     <html lang={l} dir={dirFor(l)}>

@@ -4,8 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { IconMoon, IconSun } from "@/components/Icons";
-
 type SlotState = "available" | "booked" | "blocked" | "closed";
 type DaySlots = {
   date: string;
@@ -15,7 +13,6 @@ type DaySlots = {
 
 export type CalendarLabels = Pick<
   Dictionary,
-  | "daySlot"
   | "nightSlot"
   | "legendAvailable"
   | "legendBooked"
@@ -50,11 +47,10 @@ function addMonths(month: string, delta: number): string {
 }
 
 /**
- * Availability calendar. Day and night bookings are separate views — the
- * segmented toggle switches between them, and each date shows one clear
- * state for the chosen slot type. Cross-day rules from the booking engine
- * surface here as "blocked" (e.g. a night booking blocks the next day's
- * day slot until 17:00).
+ * Night-availability calendar (day slots are phone-only and not sold on the
+ * website). Each date shows one clear state for the night slot; the booking
+ * engine's cross-day rules surface as "blocked" (e.g. a day booking made by
+ * the owner blocks the previous night).
  */
 export function Calendar({
   locale,
@@ -69,7 +65,7 @@ export function Calendar({
 }: CalendarProps) {
   const router = useRouter();
   const [month, setMonth] = useState(initialMonth);
-  const [view, setView] = useState<"day" | "night">("night");
+  const view = "night" as const;
   const [cache, setCache] = useState<Record<string, DaySlots[]>>({});
   const days = cache[month];
 
@@ -153,27 +149,6 @@ export function Calendar({
 
   return (
     <div className="calendar">
-      <div className="cal-toggle" role="tablist" aria-label={`${labels.daySlot} / ${labels.nightSlot}`}>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={view === "day"}
-          className={view === "day" ? "active" : ""}
-          onClick={() => setView("day")}
-        >
-          <IconSun size={15} /> {labels.daySlot}
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={view === "night"}
-          className={view === "night" ? "active" : ""}
-          onClick={() => setView("night")}
-        >
-          <IconMoon size={15} /> {labels.nightSlot}
-        </button>
-      </div>
-
       <div className="calendar-nav">
         <button
           type="button"

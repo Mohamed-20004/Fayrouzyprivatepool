@@ -201,31 +201,32 @@ export async function createBookingHold(
 }
 
 /**
- * Flexible booking: the guest picks only a month, slot type and a number of
- * consecutive days — the chalet assigns a random available run in that
- * month, then the normal hold flow takes over.
+ * Flexible dates: pick a random available run of `count` consecutive dates
+ * in `month` WITHOUT holding it — shown to the guest before they commit.
+ * The transactional hold at booking time remains the authority.
  */
-export async function createFlexibleHold(
-  input: Omit<CreateHoldInput, "dates"> & { month: string; count: number }
-): Promise<CreateHoldResult> {
-  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(input.month))
+export function pickFlexibleDates(
+  month: string,
+  count: number,
+  slot: SlotType
+): { ok: true; dates: string[]; total: number } | { ok: false; error: string } {
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month))
     return { ok: false, error: "invalid_month" };
-  const count = Math.floor(input.count);
-  if (!(count >= 1 && count <= MAX_FLEX_DAYS))
-    return { ok: false, error: "invalid_count" };
+  const n = Math.floor(count);
+  if (!(n >= 1 && n <= MAX_FLEX_DAYS)) return { ok: false, error: "invalid_count" };
 
-  const [y, m] = input.month.split("-").map(Number);
+  const [y, m] = month.split("-").map(Number);
   const daysInMonth = new Date(Date.UTC(y, m, 0)).getUTCDate();
   const today = todayInChaletTz();
 
   releaseExpiredHolds();
   const candidates: string[] = [];
-  for (let d = 1; d <= daysInMonth - (count - 1); d++) {
-    const start = `${input.month}-${String(d).padStart(2, "0")}`;
+  for (let d = 1; d <= daysInMonth - (n - 1); d++) {
+    const start = `${month}-${String(d).padStart(2, "0")}`;
     if (start < today) continue;
     let ok = true;
-    for (let i = 0; i < count; i++) {
-      if (slotState(addDays(start, i), input.slot) !== "available") {
+    for (let i = 0; i < n; i++) {
+      if (slotState(addDays(start, i), slot) !== "available") {
         ok = false;
         break;
       }
@@ -234,18 +235,10 @@ export async function createFlexibleHold(
   }
   if (candidates.length === 0) return { ok: false, error: "no_availability" };
 
-  // Try random starts until a hold sticks (a candidate can be taken between
-  // the scan and the hold — the transactional hold is still the authority).
-  const shuffled = candidates
-    .map((c) => ({ c, r: crypto.randomInt(1 << 30) }))
-    .sort((a, b) => a.r - b.r)
-    .map((x) => x.c);
-  for (const start of shuffled.slice(0, 5)) {
-    const dates = Array.from({ length: count }, (_, i) => addDays(start, i));
-    const result = await createBookingHold({ ...input, dates });
-    if (result.ok || result.error !== "slot_unavailable") return result;
-  }
-  return { ok: false, error: "no_availability" };
+  const start = candidates[crypto.randomInt(candidates.length)];
+  const dates = Array.from({ length: n }, (_, i) => addDays(start, i));
+  const total = dates.reduce((sum, d) => sum + priceFor(d, slot), 0);
+  return { ok: true, dates, total };
 }
 
 /** All rows of a booking group, ascending by date. */
