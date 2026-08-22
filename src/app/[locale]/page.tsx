@@ -6,6 +6,7 @@ import { BrandLockup } from "@/components/BrandLockup";
 import { ScrollLink } from "@/components/ScrollLink";
 import { GallerySection } from "@/components/GallerySection";
 import { BookingSection } from "@/components/BookingSection";
+import { ReviewForm } from "@/components/ReviewForm";
 import {
   IconBed,
   IconKitchen,
@@ -246,6 +247,10 @@ export default async function HomePage({
                 <blockquote className="review-quote">“{r.quote[l]}”</blockquote>
               </article>
             ))}
+          </div>
+
+          <div className="review-form-wrap">
+            <ReviewForm locale={l} labels={dict} />
           </div>
         </div>
       </section>

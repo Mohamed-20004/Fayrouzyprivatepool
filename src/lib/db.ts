@@ -75,6 +75,18 @@ function migrate(db: Database.Database) {
       updated_at   INTEGER NOT NULL
     );
 
+    -- Guest-submitted reviews. Not shown on the site automatically — the
+    -- owner reads them (WhatsApp notification + admin endpoint) and promotes
+    -- the good ones into chalet.config.ts by hand.
+    CREATE TABLE IF NOT EXISTS reviews (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      name       TEXT NOT NULL,
+      rating     INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+      message    TEXT NOT NULL,
+      locale     TEXT NOT NULL DEFAULT 'en',
+      created_at INTEGER NOT NULL
+    );
+
     -- WhatsApp messages sent (or, in mock mode, that would have been sent).
     CREATE TABLE IF NOT EXISTS whatsapp_outbox (
       id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -127,6 +139,15 @@ export type BookingRow = {
   created_at: number;
   confirmed_at: number | null;
   cancelled_at: number | null;
+};
+
+export type ReviewRow = {
+  id: number;
+  name: string;
+  rating: number;
+  message: string;
+  locale: string;
+  created_at: number;
 };
 
 export type PaymentRow = {

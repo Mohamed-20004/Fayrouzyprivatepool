@@ -145,6 +145,30 @@ guest used on the site.
    payloads at go-live. Inside the 24-hour window (guests message first via
    the buttons) free-form messages work as-is.
 
+## Guest reviews
+
+The reviews section has a "Share your experience" form (name, 1–5 stars,
+message). Submissions are **private** — nothing is auto-published. Each one
+goes to two places the owner can see:
+
+1. **WhatsApp** — forwarded as a message to the chalet's own number
+   (`chaletConfig.phone`) via the same Cloud API client as booking
+   confirmations (in mock mode it lands in `whatsapp_outbox` instead).
+2. **Database** — stored in the `reviews` table, readable via the protected
+   endpoint (same `ADMIN_SECRET` scheme as date-blocking):
+
+```bash
+curl https://<domain>/api/admin/reviews -H "x-admin-secret: $ADMIN_SECRET"
+
+curl -X DELETE https://<domain>/api/admin/reviews \
+  -H "x-admin-secret: $ADMIN_SECRET" -H "Content-Type: application/json" \
+  -d '{"id":3}'          # remove spam / handled reviews
+```
+
+The cards shown on the site stay curated: pick the best submissions and add
+them to `reviews.items` in `chalet.config.ts`. Spam protection: a honeypot
+field plus a site-wide cap of 10 submissions/hour.
+
 ## Blocking dates (owner)
 
 No admin panel — two equivalent mechanisms:

@@ -1150,6 +1150,75 @@ footer[id] {
   font-size: 0.7rem;
 }
 
+/* Guest review form (reviews section). */
+.review-form-wrap {
+  max-width: 560px;
+  margin-top: var(--space-6);
+}
+.review-form h3 {
+  margin: 0 0 var(--space-2);
+}
+.review-lead {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-4);
+}
+.review-form .field textarea {
+  width: 100%;
+  padding: 14px;
+  font-size: 1rem;
+  font-family: var(--font-sans);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--color-text);
+  resize: vertical;
+}
+.review-form .field textarea::placeholder {
+  color: var(--color-text-faint);
+}
+.review-form .field textarea:focus {
+  outline: none;
+  border-color: var(--brand-accent);
+}
+.star-row {
+  display: flex;
+  gap: 6px;
+}
+.star-btn {
+  background: transparent;
+  border: none;
+  padding: 2px;
+  font-size: 1.7rem;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.18);
+  cursor: pointer;
+  transition: color 0.12s, transform 0.12s;
+}
+.star-btn.lit {
+  color: var(--brand-accent);
+}
+.star-btn:hover {
+  transform: scale(1.12);
+}
+/* Honeypot: off-screen for humans, present for bots. */
+.review-hp {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+}
+.review-form .btn {
+  margin-top: var(--space-2);
+}
+.review-thanks {
+  color: var(--brand-accent);
+  font-weight: 600;
+  margin: var(--space-2) 0 0;
+}
+
 .radio-row {
   display: flex;
   gap: var(--space-2);

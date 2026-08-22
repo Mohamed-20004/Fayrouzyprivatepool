@@ -156,6 +156,15 @@ const en = {
   reviewsTitle1: "What Our",
   reviewsTitle2: "Guests Say",
   staysSuffix: "stays",
+  leaveReviewTitle: "Share your experience",
+  leaveReviewLead:
+    "Stayed with us? We'd love to hear about it — your review goes straight to our team.",
+  reviewRatingLabel: "Your rating",
+  reviewMessageLabel: "Your review",
+  reviewMessagePlaceholder: "Tell us about your stay…",
+  reviewSubmit: "Send review",
+  reviewThanks: "Thank you! Your review has been sent to our team.",
+  reviewSendError: "Couldn't send your review — please try again.",
 
   // Footer
   getInTouch: "Get in touch",
@@ -309,6 +318,15 @@ const ar: Dictionary = {
   reviewsTitle1: "ماذا يقول",
   reviewsTitle2: "ضيوفنا",
   staysSuffix: "إقامة",
+  leaveReviewTitle: "شاركنا تجربتك",
+  leaveReviewLead:
+    "أقمت عندنا؟ يسعدنا سماع رأيك — يصل تقييمك مباشرة إلى فريقنا.",
+  reviewRatingLabel: "تقييمك",
+  reviewMessageLabel: "رأيك",
+  reviewMessagePlaceholder: "حدّثنا عن إقامتك…",
+  reviewSubmit: "إرسال التقييم",
+  reviewThanks: "شكراً لك! وصل تقييمك إلى فريقنا.",
+  reviewSendError: "تعذّر إرسال التقييم — حاول مرة أخرى.",
 
   getInTouch: "تواصل معنا",
   followAlong: "تابعنا",
@@ -465,6 +483,15 @@ const fr: Dictionary = {
   reviewsTitle1: "Ce que disent",
   reviewsTitle2: "nos hôtes",
   staysSuffix: "séjours",
+  leaveReviewTitle: "Partagez votre expérience",
+  leaveReviewLead:
+    "Vous avez séjourné chez nous ? Racontez-nous — votre avis arrive directement à notre équipe.",
+  reviewRatingLabel: "Votre note",
+  reviewMessageLabel: "Votre avis",
+  reviewMessagePlaceholder: "Parlez-nous de votre séjour…",
+  reviewSubmit: "Envoyer l'avis",
+  reviewThanks: "Merci ! Votre avis a bien été transmis à notre équipe.",
+  reviewSendError: "Impossible d'envoyer votre avis — veuillez réessayer.",
 
   getInTouch: "Nous contacter",
   followAlong: "Suivez-nous",
