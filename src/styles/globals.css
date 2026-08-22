@@ -816,21 +816,51 @@ footer[id] {
   outline: 1px solid var(--brand-accent);
   background: rgba(62, 200, 195, 0.26);
 }
+.cal-state {
+  font-family: var(--font-action);
+  font-weight: 700;
+  font-size: 0.44rem;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .cal-state {
+    font-size: 0.35rem;
+    letter-spacing: 0;
+  }
+  .cal-cell {
+    padding: 6px 0;
+  }
+  .calendar-grid {
+    gap: 3px;
+  }
+}
 .cal-cell.booked {
-  background: var(--color-booked-bg);
+  background: #2b1512;
+  border-color: #3d201c;
   cursor: not-allowed;
 }
 .cal-cell.booked .cal-num {
+  color: #8a5a53;
+}
+.cal-cell.booked .cal-state {
   color: var(--color-booked);
-  text-decoration: line-through;
 }
 .cal-cell.blocked {
-  background: var(--color-blocked-bg);
+  background: #161d1d;
+  border-color: #232d2d;
   cursor: not-allowed;
 }
 .cal-cell.blocked .cal-num {
+  color: #4f6360;
+}
+.cal-cell.blocked .cal-state {
   color: var(--color-blocked);
-  text-decoration: line-through;
 }
 .cal-cell.closed {
   background: transparent;

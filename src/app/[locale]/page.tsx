@@ -36,7 +36,11 @@ export default async function HomePage({
     chaletConfig.season.endMonth
   ).padStart(2, "0")}`;
 
-  const fromPrice = Math.min(...Object.values(chaletConfig.prices));
+  // Headline rate: the cheapest NIGHT (night stays are the main product).
+  const fromPrice = Math.min(
+    chaletConfig.prices.nightWeekday,
+    chaletConfig.prices.nightWeekend
+  );
   const { lat, lng } = chaletConfig.location;
   const bbox = `${lng - 0.02},${lat - 0.012},${lng + 0.02},${lat + 0.012}`;
 
@@ -132,7 +136,7 @@ export default async function HomePage({
             <strong>
               {fromPrice} {chaletConfig.currency}
             </strong>{" "}
-            · {dict.instantConfirmation}
+            {dict.perNight} · {dict.instantConfirmation}
           </p>
           <BookingSection
             locale={l}

@@ -198,6 +198,9 @@ export function Calendar({
               >
                 <span className="cal-num">{fmtNum.format(Number(d.date.slice(8)))}</span>
                 {bookable && <span className="cal-price">{fmtNum.format(info.price)}</span>}
+                {(info.state === "booked" || info.state === "blocked") && (
+                  <span className="cal-state">{stateLabel}</span>
+                )}
               </button>
             );
           })}
