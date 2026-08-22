@@ -75,6 +75,12 @@ body {
   overflow-x: clip;
 }
 
+/* Text selected with the cursor highlights in brand turquoise. */
+::selection {
+  background: var(--brand-accent);
+  color: #0b1010;
+}
+
 img {
   max-width: 100%;
   display: block;
