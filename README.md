@@ -62,10 +62,12 @@ Two behaviour flags are **assumptions to confirm with the owner**:
 - **Multi-night bookings:** a booking is a group of 1–14 consecutive nights,
   paid together under one reference (`group_ref`). Cancellation refunds the
   whole group; online rescheduling is single-night only.
-- **Flexible bookings:** guests pick a month + number of nights;
-  `GET /api/flexible?month&count` suggests a random available run which is
-  shown to the guest (with a re-roll) BEFORE payment, then booked through
-  the normal dates flow.
+- **Flexible bookings:** a toggle under the booking calendar. Guests pick a
+  number of nights; `GET /api/flexible?month&count` picks a random available
+  run in the month being viewed and it is **highlighted on the calendar**
+  like a manual selection (with a re-roll button) BEFORE payment, then
+  booked through the normal dates flow. Tapping a date switches back to
+  manual picking.
 - **Availability rules** (all enforced server-side in
   [`src/lib/availability.ts`](src/lib/availability.ts)):
   1. Day and night slots on the same date are independent.

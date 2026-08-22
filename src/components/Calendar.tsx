@@ -38,6 +38,8 @@ interface CalendarProps {
   onSelect?: (dates: string[], slot: "day" | "night", total: number) => void;
   /** Currently selected dates (summary / rebook flow highlight). */
   selected?: { dates: string[]; slot: "day" | "night" } | null;
+  /** Fired when the guest navigates to another month ("YYYY-MM"). */
+  onMonthChange?: (month: string) => void;
 }
 
 function addMonths(month: string, delta: number): string {
@@ -62,9 +64,16 @@ export function Calendar({
   rangeSelect,
   onSelect,
   selected,
+  onMonthChange,
 }: CalendarProps) {
   const router = useRouter();
   const [month, setMonth] = useState(initialMonth);
+
+  const goToMonth = (delta: number) => {
+    const next = addMonths(month, delta);
+    setMonth(next);
+    onMonthChange?.(next);
+  };
   const view = "night" as const;
   const [cache, setCache] = useState<Record<string, DaySlots[]>>({});
   const days = cache[month];
@@ -152,7 +161,7 @@ export function Calendar({
       <div className="calendar-nav">
         <button
           type="button"
-          onClick={() => setMonth((m) => addMonths(m, -1))}
+          onClick={() => goToMonth(-1)}
           disabled={month <= minMonth}
           aria-label={labels.prevMonth}
         >
@@ -161,7 +170,7 @@ export function Calendar({
         <h3>{monthTitle}</h3>
         <button
           type="button"
-          onClick={() => setMonth((m) => addMonths(m, 1))}
+          onClick={() => goToMonth(1)}
           disabled={month >= maxMonth}
           aria-label={labels.nextMonth}
         >
