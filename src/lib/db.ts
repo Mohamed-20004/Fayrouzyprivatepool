@@ -87,6 +87,17 @@ function migrate(db: Database.Database) {
       created_at INTEGER NOT NULL
     );
 
+    -- Emails sent (or, in mock mode, that would have been sent).
+    CREATE TABLE IF NOT EXISTS email_outbox (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      to_address TEXT NOT NULL,
+      subject    TEXT NOT NULL,
+      body       TEXT NOT NULL,
+      mode       TEXT NOT NULL CHECK (mode IN ('sent','mock','failed')),
+      error      TEXT,
+      created_at INTEGER NOT NULL
+    );
+
     -- WhatsApp messages sent (or, in mock mode, that would have been sent).
     CREATE TABLE IF NOT EXISTS whatsapp_outbox (
       id         INTEGER PRIMARY KEY AUTOINCREMENT,

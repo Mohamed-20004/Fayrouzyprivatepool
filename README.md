@@ -149,12 +149,19 @@ guest used on the site.
 
 The reviews section has a "Share your experience" form (name, 1–5 stars,
 message). Submissions are **private** — nothing is auto-published. Each one
-goes to two places the owner can see:
+goes to three places the owner can see:
 
-1. **WhatsApp** — forwarded as a message to the chalet's own number
+1. **Email** — sent to `chaletConfig.reviewsEmail`
+   (`fayrouzy.pool@gmail.com`) via SMTP. Set the `SMTP_*` env vars to go
+   live — for Gmail, sign in as that account, create an **App Password**
+   (Google Account → Security → 2-Step Verification → App passwords) and
+   set `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=465`,
+   `SMTP_USER=fayrouzy.pool@gmail.com`, `SMTP_PASS=<app password>`. With no
+   credentials the email lands in the `email_outbox` table (mock mode).
+2. **WhatsApp** — forwarded as a message to the chalet's own number
    (`chaletConfig.phone`) via the same Cloud API client as booking
    confirmations (in mock mode it lands in `whatsapp_outbox` instead).
-2. **Database** — stored in the `reviews` table, readable via the protected
+3. **Database** — stored in the `reviews` table, readable via the protected
    endpoint (same `ADMIN_SECRET` scheme as date-blocking):
 
 ```bash
@@ -199,9 +206,10 @@ curl https://<domain>/api/admin/block -H "x-admin-secret: $ADMIN_SECRET"
 ## Environment variables
 
 See [`.env.example`](.env.example). Summary: `APP_BASE_URL`, `APP_SECRET`
-(signs rebook links), `ADMIN_SECRET`, optional `DATABASE_FILE`, and the
-WhatsApp / Whish / bank credential sets — any credential set left empty keeps
-that integration in mock mode.
+(signs rebook links), `ADMIN_SECRET`, optional `DATABASE_FILE`, the SMTP
+credentials for review emails, and the WhatsApp / Whish / bank / crypto
+credential sets — any credential set left empty keeps that integration in
+mock mode.
 
 ## Project layout
 

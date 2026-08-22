@@ -83,6 +83,9 @@ export const chaletConfig = {
   /** PLACEHOLDER — phone number guests must call for changes within 7 days of the slot. */
   phone: "+961 3 456 789",
 
+  /** Owner inbox — guest review submissions are emailed here (not public). */
+  reviewsEmail: "fayrouzy.pool@gmail.com",
+
   /** PLACEHOLDER — contact + social details shown in the footer. */
   contact: {
     email: "stay@fayrouzyprivatepool.com",

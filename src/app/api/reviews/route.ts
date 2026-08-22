@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { chaletConfig } from "@/config/chalet.config";
 import { getDb } from "@/lib/db";
+import { sendEmail } from "@/lib/email";
 import { sendWhatsAppPayload } from "@/lib/whatsapp/client";
 
 export const dynamic = "force-dynamic";
 
 /**
  * Public review submission. Reviews are NOT published on the site — they go
- * to the owner: stored in the `reviews` table (readable via
- * GET /api/admin/reviews with the admin secret) and forwarded as a WhatsApp
- * message to the chalet's own number. The owner promotes the good ones into
- * chalet.config.ts by hand.
+ * to the owner: emailed to `chaletConfig.reviewsEmail`, forwarded as a
+ * WhatsApp message to the chalet's own number, and stored in the `reviews`
+ * table (readable via GET /api/admin/reviews with the admin secret). The
+ * owner promotes the good ones into chalet.config.ts by hand.
  */
 
 const MAX_PER_HOUR = 10; // site-wide cap; a private chalet gets a handful of real ones
@@ -62,13 +63,20 @@ export async function POST(request: NextRequest) {
     `INSERT INTO reviews (name, rating, message, locale, created_at) VALUES (?, ?, ?, ?, ?)`
   ).run(name, rating, message, locale, Date.now());
 
-  // Forward to the owner's WhatsApp. Never fail the submission over it.
-  const owner = chaletConfig.phone.replace(/\s/g, "");
+  // Notify the owner — email first, WhatsApp as a second channel. Neither
+  // is allowed to fail the submission.
   const stars = "★".repeat(rating) + "☆".repeat(5 - rating);
+  const summary = `${stars} (${rating}/5) — ${name} [${locale}]\n\n${message}`;
+  await sendEmail(
+    chaletConfig.reviewsEmail,
+    `New review: ${stars} from ${name} — ${chaletConfig.name}`,
+    `New review on ${chaletConfig.name}\n\n${summary}\n\n— Sent automatically by the ${chaletConfig.name} website`
+  );
+  const owner = chaletConfig.phone.replace(/\s/g, "");
   await sendWhatsAppPayload(owner, "review_notification", {
     type: "text",
     text: {
-      body: `New review on ${chaletConfig.name}\n${stars} (${rating}/5) — ${name} [${locale}]\n\n${message}`,
+      body: `New review on ${chaletConfig.name}\n${summary}`,
     },
   });
 
