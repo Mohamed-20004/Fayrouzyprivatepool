@@ -41,10 +41,21 @@ export type CreateHoldInput = {
   whatsapp: string;
   locale: string;
   provider: ProviderId;
+  /** 'full' pays everything online; 'deposit' pays depositPercent online. */
+  plan: "full" | "deposit";
 };
 
 export type CreateHoldResult =
-  | { ok: true; reference: string; checkoutUrl: string; amount: number; dates: string[] }
+  | {
+      ok: true;
+      reference: string;
+      checkoutUrl: string;
+      /** Charged online now (the deposit when plan = 'deposit'). */
+      amount: number;
+      /** Full price of the stay. */
+      total: number;
+      dates: string[];
+    }
   | { ok: false; error: string };
 
 const E164_RE = /^\+[1-9]\d{6,14}$/;
@@ -95,9 +106,14 @@ export async function createBookingHold(
   if (!whatsapp) return { ok: false, error: "invalid_whatsapp" };
   const provider = getProvider(input.provider);
   if (!provider) return { ok: false, error: "invalid_provider" };
+  const plan = input.plan === "deposit" ? "deposit" : "full";
 
   const amounts = input.dates.map((d) => priceFor(d, input.slot));
   const total = amounts.reduce((a, b) => a + b, 0);
+  const charge =
+    plan === "deposit"
+      ? Math.ceil((total * chaletConfig.depositPercent) / 100)
+      : total;
   const groupRef = newBookingReference();
   const providerRef = crypto.randomUUID();
   const now = Date.now();
@@ -113,9 +129,10 @@ export async function createBookingHold(
       }
       const insert = db.prepare(
         `INSERT INTO bookings
-           (reference, group_ref, date, slot, status, guest_name, whatsapp,
-            locale, amount, currency, payment_provider, hold_expires_at, created_at)
-         VALUES (?, ?, ?, ?, 'hold', ?, ?, ?, ?, ?, ?, ?, ?)`
+           (reference, group_ref, payment_plan, date, slot, status, guest_name,
+            whatsapp, locale, amount, currency, payment_provider,
+            hold_expires_at, created_at)
+         VALUES (?, ?, ?, ?, ?, 'hold', ?, ?, ?, ?, ?, ?, ?, ?)`
       );
       let firstId = 0;
       input.dates.forEach((date, i) => {
@@ -123,6 +140,7 @@ export async function createBookingHold(
         const res = insert.run(
           rowRef,
           groupRef,
+          plan,
           date,
           input.slot,
           guestName,
@@ -141,7 +159,7 @@ export async function createBookingHold(
            (booking_id, purpose, provider, provider_ref, amount, currency,
             status, created_at, updated_at)
          VALUES (?, 'booking', ?, ?, ?, ?, 'pending', ?, ?)`
-      ).run(firstId, provider.id, providerRef, total, chaletConfig.currency, now, now);
+      ).run(firstId, provider.id, providerRef, charge, chaletConfig.currency, now, now);
       return firstId;
     })();
   } catch (e) {
@@ -157,13 +175,20 @@ export async function createBookingHold(
   try {
     const session = await provider.createCheckout({
       providerRef,
-      amount: total,
+      amount: charge,
       currency: chaletConfig.currency,
-      description: `${chaletConfig.name} — ${rangeLabel} ${input.slot} (${groupRef})`,
+      description: `${chaletConfig.name} — ${rangeLabel} ${input.slot} (${groupRef}${plan === "deposit" ? ", deposit" : ""})`,
       returnUrl: `${baseUrl()}/${input.locale}/confirmation/${groupRef}`,
       webhookUrl: `${baseUrl()}/api/payments/webhook/${provider.id}`,
     });
-    return { ok: true, reference: groupRef, checkoutUrl: session.checkoutUrl, amount: total, dates: input.dates };
+    return {
+      ok: true,
+      reference: groupRef,
+      checkoutUrl: session.checkoutUrl,
+      amount: charge,
+      total,
+      dates: input.dates,
+    };
   } catch {
     db.prepare(
       `UPDATE bookings SET status='expired' WHERE group_ref=? AND status='hold'`
@@ -403,6 +428,8 @@ export async function rebookBooking(
   if (rows.length === 0) return { ok: false, error: "not_found" };
   if (rows.length > 1) return { ok: false, error: "not_rebookable" };
   const booking = rows[0];
+  if (booking.payment_plan === "deposit")
+    return { ok: false, error: "not_rebookable" };
   if (booking.status !== "confirmed") return { ok: false, error: "not_confirmed" };
   if (!isFreelyChangeable(booking.date, booking.slot))
     return { ok: false, error: "too_late" };

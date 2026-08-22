@@ -88,6 +88,15 @@ vars (see `.env.example`); a provider with no credentials runs in mock mode.
 - **Bank** ([`bank.ts`](src/lib/payments/bank.ts)) — assumes a
   hosted-checkout card gateway. **Confirm with the owner:** card gateway vs
   direct bank transfer; only this adapter changes either way.
+- **Crypto** ([`crypto.ts`](src/lib/payments/crypto.ts)) — hosted-invoice
+  processor (NOWPayments-style). Crypto refunds are **manual**: on
+  cancellation the guest is told the refund will be processed shortly and
+  the owner settles it by hand.
+
+**Deposit option:** guests choose to pay in full online or pay
+`depositPercent` (default 50%) online with the balance in cash at the
+chalet. Deposit bookings are cancel-only online (reschedule by phone);
+cancellation refunds the online-paid part.
 
 Webhooks land on `POST /api/payments/webhook/:provider`, are HMAC-verified by
 the adapter, and are idempotent (replays are no-ops). If a webhook arrives

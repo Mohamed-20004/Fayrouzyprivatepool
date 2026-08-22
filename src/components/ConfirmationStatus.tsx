@@ -22,6 +22,8 @@ type Labels = Pick<
   | "daySlot"
   | "nightSlot"
   | "backToCalendar"
+  | "paidOnlineLabel"
+  | "balanceCashLabel"
 >;
 
 type BookingInfo = {
@@ -29,7 +31,10 @@ type BookingInfo = {
   dates: string[];
   slot: "day" | "night";
   status: "hold" | "confirmed" | "cancelled" | "expired";
+  plan?: "full" | "deposit";
   amount: number;
+  paidOnline?: number;
+  balanceDue?: number;
   currency: string;
 };
 
@@ -105,6 +110,22 @@ export function ConfirmationStatus({
           {booking.amount} {booking.currency}
         </span>
       </div>
+      {booking.plan === "deposit" && booking.paidOnline !== undefined && (
+        <>
+          <div className="summary-row">
+            <span>{labels.paidOnlineLabel}</span>
+            <span className="value">
+              {booking.paidOnline} {booking.currency}
+            </span>
+          </div>
+          <div className="summary-row">
+            <span>{labels.balanceCashLabel}</span>
+            <span className="value price-big">
+              {booking.balanceDue} {booking.currency}
+            </span>
+          </div>
+        </>
+      )}
 
       <p style={{ textAlign: "center", marginTop: "var(--space-3)" }}>
         <Link href={`/${locale}`}>{labels.backToCalendar}</Link>

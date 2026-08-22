@@ -30,7 +30,8 @@ export async function POST(request: NextRequest) {
     guestName: String(body.guestName ?? ""),
     whatsapp: String(body.whatsapp ?? ""),
     locale,
-    provider: body.provider as "bank" | "whish",
+    provider: body.provider as "bank" | "whish" | "crypto",
+    plan: (body.plan === "deposit" ? "deposit" : "full") as "full" | "deposit",
   };
 
   const flexible = body.flexible as { month?: unknown; count?: unknown } | undefined;

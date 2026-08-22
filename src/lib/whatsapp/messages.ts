@@ -49,6 +49,12 @@ const T = {
   date: { en: "Date", ar: "التاريخ", fr: "Date" },
   slot: { en: "Slot", ar: "الفترة", fr: "Créneau" },
   paid: { en: "Amount paid", ar: "المبلغ المدفوع", fr: "Montant payé" },
+  paidOnline: { en: "Paid online", ar: "المدفوع إلكترونياً", fr: "Payé en ligne" },
+  balanceCash: {
+    en: "Balance in cash at arrival",
+    ar: "الرصيد نقداً عند الوصول",
+    fr: "Solde en espèces à l'arrivée",
+  },
   location: { en: "Location", ar: "الموقع", fr: "Localisation" },
   changesCallUs: {
     en: `Your booking starts in less than ${chaletConfig.freeCancellationDays} days. For any changes please call us: ${chaletConfig.phone}`,
@@ -106,13 +112,24 @@ function totalAmount(rows: BookingRow[]): number {
 
 function confirmationBody(rows: BookingRow[], l: WaLocale, rebooked: boolean): string {
   const b = rows[0];
+  const total = totalAmount(rows);
+  const paymentLines =
+    b.payment_plan === "deposit"
+      ? (() => {
+          const paid = Math.ceil((total * chaletConfig.depositPercent) / 100);
+          return [
+            `${T.paidOnline[l]}: ${paid} ${b.currency}`,
+            `${T.balanceCash[l]}: ${total - paid} ${b.currency}`,
+          ];
+        })()
+      : [`${T.paid[l]}: ${total} ${b.currency}`];
   const lines = [
     `${rebooked ? T.rebookedTitle[l] : T.confirmedTitle[l]} — ${chaletConfig.name}`,
     ``,
     `${T.reference[l]}: ${b.group_ref}`,
     `${T.date[l]}: ${datesLabel(rows)}`,
     `${T.slot[l]}: ${slotLabel(l, b.slot)}`,
-    `${T.paid[l]}: ${totalAmount(rows)} ${b.currency}`,
+    ...paymentLines,
     `${T.location[l]}: ${chaletConfig.location.mapsUrl}`,
   ];
   return lines.join("\n");

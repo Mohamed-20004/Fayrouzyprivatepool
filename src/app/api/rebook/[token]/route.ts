@@ -45,8 +45,8 @@ export async function GET(
     changeable:
       rows.every((r) => r.status === "confirmed") &&
       isFreelyChangeable(lead.date, lead.slot),
-    /** Online reschedule is single-day only; groups cancel or call. */
-    rebookable: rows.length === 1,
+    /** Online reschedule: single-day, fully-paid bookings only. */
+    rebookable: rows.length === 1 && lead.payment_plan === "full",
     phone: chaletConfig.phone,
   });
 }

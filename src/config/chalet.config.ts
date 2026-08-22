@@ -68,6 +68,12 @@ export const chaletConfig = {
     | "settleDifference"
     | "noRefundOnCheaper",
 
+  /**
+   * Deposit option: guests may pay this percentage online and the rest in
+   * cash at the chalet, or pay in full online.
+   */
+  depositPercent: 50,
+
   /** Minutes a slot is held while payment is in progress. */
   holdMinutes: 10,
 

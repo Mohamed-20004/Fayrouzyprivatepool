@@ -20,6 +20,11 @@ type Labels = Pick<
   | "errSlotTaken"
   | "errGeneric"
   | "errNoAvailability"
+  | "payCrypto"
+  | "paymentPlanLabel"
+  | "payFull"
+  | "payDeposit"
+  | "depositNote"
 >;
 
 /** What is being booked: explicit consecutive dates, or a flexible request. */
@@ -40,7 +45,8 @@ export function BookingForm({
 }) {
   const [name, setName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
-  const [provider, setProvider] = useState<"bank" | "whish">("whish");
+  const [provider, setProvider] = useState<"bank" | "whish" | "crypto">("whish");
+  const [plan, setPlan] = useState<"full" | "deposit">("full");
   const [errors, setErrors] = useState<{ name?: string; whatsapp?: string; form?: string }>({});
   const [submitting, setSubmitting] = useState(false);
 
@@ -70,6 +76,7 @@ export function BookingForm({
           whatsapp: whatsapp.trim(),
           locale,
           provider,
+          plan,
         }),
       });
       const data = await res.json();
@@ -129,6 +136,33 @@ export function BookingForm({
       </div>
 
       <div className="field">
+        <label>{labels.paymentPlanLabel}</label>
+        <div className="radio-row" role="radiogroup" aria-label={labels.paymentPlanLabel}>
+          <label className={`radio-card ${plan === "full" ? "selected" : ""}`}>
+            <input
+              type="radio"
+              name="plan"
+              value="full"
+              checked={plan === "full"}
+              onChange={() => setPlan("full")}
+            />
+            {labels.payFull}
+          </label>
+          <label className={`radio-card ${plan === "deposit" ? "selected" : ""}`}>
+            <input
+              type="radio"
+              name="plan"
+              value="deposit"
+              checked={plan === "deposit"}
+              onChange={() => setPlan("deposit")}
+            />
+            {labels.payDeposit}
+          </label>
+        </div>
+        {plan === "deposit" && <p className="hint">{labels.depositNote}</p>}
+      </div>
+
+      <div className="field">
         <label>{labels.paymentMethod}</label>
         <div className="radio-row" role="radiogroup" aria-label={labels.paymentMethod}>
           <label className={`radio-card ${provider === "whish" ? "selected" : ""}`}>
@@ -150,6 +184,16 @@ export function BookingForm({
               onChange={() => setProvider("bank")}
             />
             {labels.payBank}
+          </label>
+          <label className={`radio-card ${provider === "crypto" ? "selected" : ""}`}>
+            <input
+              type="radio"
+              name="provider"
+              value="crypto"
+              checked={provider === "crypto"}
+              onChange={() => setProvider("crypto")}
+            />
+            {labels.payCrypto}
           </label>
         </div>
       </div>

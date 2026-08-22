@@ -4,7 +4,7 @@
  * without touching booking logic. All credentials come from env vars.
  */
 
-export type ProviderId = "bank" | "whish";
+export type ProviderId = "bank" | "whish" | "crypto";
 
 export interface CheckoutRequest {
   /** Our internal payment reference — the provider must echo it back in webhooks. */

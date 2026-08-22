@@ -93,8 +93,14 @@ function migrate(db: Database.Database) {
   if (!cols.some((c) => c.name === "group_ref")) {
     db.exec(`ALTER TABLE bookings ADD COLUMN group_ref TEXT`);
   }
+  // Payment plan: 'full' (everything online) or 'deposit' (a percentage
+  // online, the balance in cash at the chalet).
+  if (!cols.some((c) => c.name === "payment_plan")) {
+    db.exec(`ALTER TABLE bookings ADD COLUMN payment_plan TEXT`);
+  }
   db.exec(`
     UPDATE bookings SET group_ref = reference WHERE group_ref IS NULL;
+    UPDATE bookings SET payment_plan = 'full' WHERE payment_plan IS NULL;
     CREATE INDEX IF NOT EXISTS idx_bookings_group ON bookings(group_ref);
   `);
 }
@@ -104,6 +110,8 @@ export type BookingRow = {
   reference: string;
   /** Guest-facing reference shared by all rows of a multi-day booking. */
   group_ref: string;
+  /** 'full' = paid online in full; 'deposit' = partial online, rest in cash. */
+  payment_plan: "full" | "deposit";
   date: string;
   slot: "day" | "night";
   status: "hold" | "confirmed" | "cancelled" | "expired";
