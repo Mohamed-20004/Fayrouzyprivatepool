@@ -134,8 +134,19 @@ export const chaletConfig = {
     },
     {
       category: "interiors",
-      alt: "The master bedroom",
-      day: "/gallery/interior-day.svg",
+      alt: "The master bedroom with two beds",
+      day: "/gallery/interior-bedroom.jpg",
+    },
+    {
+      category: "interiors",
+      alt: "The living room",
+      day: "/gallery/interior-living.jpg",
+    },
+    {
+      category: "interiors",
+      alt: "The fully equipped kitchen and dining table",
+      day: "/gallery/interior-kitchen.jpg",
+      wide: true,
     },
     {
       category: "views",
@@ -148,6 +159,7 @@ export const chaletConfig = {
     alt: string;
     day: string;
     night?: string;
+    wide?: boolean;
   }>,
 
   /**

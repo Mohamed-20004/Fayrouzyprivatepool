@@ -533,6 +533,17 @@ footer[id] {
   cursor: default;
   touch-action: auto;
 }
+/* Plain photos keep more of the frame than the 16:9 comparison shots. */
+.compare.plain img {
+  aspect-ratio: 4 / 3;
+}
+/* Panoramas span the whole gallery row at their natural wide shape. */
+.gallery-grid .wide {
+  grid-column: 1 / -1;
+}
+.compare.wide img {
+  aspect-ratio: 21 / 9;
+}
 .compare-top {
   position: absolute;
   inset: 0;

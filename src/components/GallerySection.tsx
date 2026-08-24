@@ -10,6 +10,8 @@ type GalleryEntry = {
   day: string;
   /** Absent = plain photo without the day/night comparison. */
   night?: string;
+  /** Panorama — spans the full gallery width at a wider aspect ratio. */
+  wide?: boolean;
 };
 
 type GalleryPair = GalleryEntry & { night: string };
@@ -144,7 +146,11 @@ export function GallerySection({
               labels={labels}
             />
           ) : (
-            <figure key={entry.day} className="compare plain" style={{ margin: 0 }}>
+            <figure
+              key={entry.day}
+              className={`compare plain${entry.wide ? " wide" : ""}`}
+              style={{ margin: 0 }}
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={entry.day} alt={entry.alt} draggable={false} />
             </figure>
